@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## Welcome to the best app on the planet
 
 You can use the [editor on GitHub](https://github.com/wislam/Charter/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
