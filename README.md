@@ -6,4 +6,4 @@
 * Kelly Zhou (`kzhou@`)
 
 ## Design Document
-Latest version will be updated [here](docs/Design_Document.pdf).
+Latest version will be available [here](docs/Design_Document.pdf).
