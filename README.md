@@ -5,4 +5,5 @@
 * Manisha Sivaiah (`mtumkur@`)
 * Kelly Zhou (`kzhou@`)
 
-## [Design Document](docs/Design_Document.pdf)
+## Design Document
+Latest version will be updated [here](docs/Design_Document.pdf).
