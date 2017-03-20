@@ -1,6 +1,6 @@
 ## Team
-Waqarul Islam (wislam@)
-Matthew Rosen (mcr3@)
-Usama Bin Shafqat (ushafqat@)
-Manisha Sivaiah (mtumkur@)
+Waqarul Islam (wislam@) \n
+Matthew Rosen (mcr3@) \n
+Usama Bin Shafqat (ushafqat@) \n
+Manisha Sivaiah (mtumkur@) \n
 Kelly Zhou (kzhou@)
