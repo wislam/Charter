@@ -4,3 +4,5 @@
 * Usama Bin Shafqat (`ushafqat@`)
 * Manisha Sivaiah (`mtumkur@`)
 * Kelly Zhou (`kzhou@`)
+
+## [Design Document](docs/Design_Document.pdf)
