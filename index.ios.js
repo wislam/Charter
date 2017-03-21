@@ -4,6 +4,7 @@
  * @flow
  */
 
+import * as firebase from 'firebase';
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -11,6 +12,15 @@ import {
   Text,
   View
 } from 'react-native';
+
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDYEq76HH9bRI1YbhV-Q8_-B5ue7Vyh4-g",
+  authDomain: "charter-2d47b.firebaseapp.com",
+  databaseURL: "https://charter-2d47b.firebaseio.com",
+  storageBucket: "charter-2d47b.appspot.com",
+};
+const firebaseApp = firebase.initializeApp(firebaseConfig);
 
 export default class Charter extends Component {
   render() {
