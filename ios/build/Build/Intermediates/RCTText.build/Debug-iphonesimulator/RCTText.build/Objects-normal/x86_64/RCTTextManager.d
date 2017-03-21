@@ -1,0 +1,32 @@
+dependencies: \
+  /Users/usamabinshafqat/Documents/Charter/node_modules/react-native/Libraries/Text/RCTTextManager.m \
+  /Users/usamabinshafqat/Documents/Charter/node_modules/react-native/Libraries/Text/RCTTextManager.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTViewManager.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTBridgeModule.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTDefines.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTConvert.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTAnimationType.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTBorderStyle.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTLog.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTAssert.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTPointerEvents.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTTextDecorationLineType.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/Yoga.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGEnums.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGMacros.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTEventDispatcher.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTBridge.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTBridgeDelegate.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTJavaScriptLoader.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTFrameUpdate.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTInvalidating.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/UIView+React.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTComponent.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTAccessibilityManager.h \
+  /Users/usamabinshafqat/Documents/Charter/node_modules/react-native/Libraries/Text/RCTShadowRawText.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTShadowView.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTRootView.h \
+  /Users/usamabinshafqat/Documents/Charter/node_modules/react-native/Libraries/Text/RCTShadowText.h \
+  /Users/usamabinshafqat/Documents/Charter/node_modules/react-native/Libraries/Text/RCTText.h \
+  /Users/usamabinshafqat/Documents/Charter/node_modules/react-native/Libraries/Text/RCTTextView.h \
+  /Users/usamabinshafqat/Documents/Charter/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTView.h
