@@ -14,7 +14,7 @@ Latest version will be available [here](docs/Design_Document.pdf).
 ## Timeline
 ### March 24
 - [x] Set up development environments for React Native. 
-- [ ] Set up Firebase backend. 
+- [x] Set up Firebase backend. 
 - [x] Set up Github Repo.
 
 ### March 31
