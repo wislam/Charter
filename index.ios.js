@@ -11,7 +11,9 @@ import {
 	StyleSheet,
 	Text,
 	ListView,
-	View
+	View,
+	Button,
+	AlertIOS
 } from 'react-native';
 
 // Initialize Firebase
@@ -22,6 +24,7 @@ const firebaseConfig = {
 	storageBucket: "charter-2d47b.appspot.com",
 };
 const firebaseApp = firebase.initializeApp(firebaseConfig);
+const chartersRef = firebaseApp.database().ref().child('charters');
 
 export default class Charter extends Component {
 
@@ -37,7 +40,6 @@ export default class Charter extends Component {
 	}
 
 	getRef() {
-		console.log(firebaseApp.database().ref());
 		return firebaseApp.database().ref();
 	}
 
@@ -65,14 +67,30 @@ export default class Charter extends Component {
 		console.log(this.state.dataSource)
 		return (
 			<View style={{flex: 1, paddingTop: 22}}>
-			<Text>DATABASE: </Text>
+			<Button
+	        	onPress={makeNewCharter}
+	        	title="Add New Trip"
+	          	color="#841584"
+	        />
 			<ListView
 			dataSource={this.state.dataSource}
-			renderRow={(rowData) => <Text>{rowData}</Text>}
+			renderRow={(rowData) => <Text style={styles.welcome}>{rowData}</Text>}
 			/>
+
 			</View>
 		);
 	}
+}
+
+const makeNewCharter = () => {
+	chartersRef.push({
+		destination: "IPO",
+		owner: "dudebro",
+		pickup: "Dillon",
+		riders: { coolgirl: "true" },
+		time: "sometime",
+		timeline: { m1: "hahah" }
+	});
 }
 
 const styles = StyleSheet.create({
