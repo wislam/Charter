@@ -3,10 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>application-identifier</key>
-	<string>com.charter.charter</string>
+	<string>54K45KS5SP.com.charter.charter</string>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>com.charter.charter</string>
+		<string>54K45KS5SP.com.charter.charter</string>
 	</array>
 </dict>
 </plist>

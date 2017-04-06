@@ -3,10 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>application-identifier</key>
-	<string>org.reactjs.native.example.CharterTests</string>
+	<string>54K45KS5SP.org.reactjs.native.example.CharterTests</string>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>org.reactjs.native.example.CharterTests</string>
+		<string>54K45KS5SP.org.reactjs.native.example.CharterTests</string>
 	</array>
 </dict>
 </plist>
