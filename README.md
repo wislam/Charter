@@ -18,16 +18,16 @@ Latest version will be available [here](docs/Design_Document.pdf).
 - [x] Set up Github Repo.
 
 ### March 31
-- [ ] Mockups, set up login and email verification
-- [ ] Database structure set up
+- [x] Mockups, set up login and email verification
+- [x] Database structure set up
 
 ### April 7
-- [ ] Build results page
-- [ ] Build ride data page
+- [x] Build results page
+- [x] Build ride data page
 
 ### April 14
 - [ ] Ability to join rides
-- [ ] Ability to create rides
+- [x] Ability to create rides
 - [ ] Complete ride data page to account for other riders
 
 ### April 21
