@@ -13,7 +13,8 @@ import {
 	ListView,
 	View,
 	Button,
-	AlertIOS
+	AlertIOS,
+	TextInput
 } from 'react-native';
 
 // Initialize Firebase
@@ -33,7 +34,8 @@ export default class Charter extends Component {
 		this.state = {
 			dataSource: new ListView.DataSource({
 				rowHasChanged: (row1, row2) => row1 !== row2,
-			})
+			}),
+			text: ''
 		};
 		this.chartersRef = this.getRef().child('charters');
 
@@ -64,9 +66,23 @@ export default class Charter extends Component {
 	}
 
 	render() {
-		console.log(this.state.dataSource)
+		const makeNewCharter = () => {
+			chartersRef.push({
+				destination: this.state.text,
+				owner: "dudebro",
+				pickup: "Dillon",
+				riders: { coolgirl: "true" },
+				time: "sometime",
+				timeline: { m1: "hahah" }
+			});
+		}
 		return (
 			<View style={{flex: 1, paddingTop: 22}}>
+			<TextInput
+		        style={{height: 40, borderColor: 'purple', borderWidth: 1, fontSize: 20, textAlign: 'center'}}
+		        onChangeText={(text) => this.setState({text})}
+		        value={this.state.text}
+		     />
 			<Button
 	        	onPress={makeNewCharter}
 	        	title="Add New Trip"
@@ -80,17 +96,6 @@ export default class Charter extends Component {
 			</View>
 		);
 	}
-}
-
-const makeNewCharter = () => {
-	chartersRef.push({
-		destination: "IPO",
-		owner: "dudebro",
-		pickup: "Dillon",
-		riders: { coolgirl: "true" },
-		time: "sometime",
-		timeline: { m1: "hahah" }
-	});
 }
 
 const styles = StyleSheet.create({
