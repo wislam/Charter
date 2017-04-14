@@ -1,0 +1,58 @@
+{
+  "name": "clamp",
+  "description": "Clamp a value between two other values",
+  "version": "1.0.1",
+  "main": "index.js",
+  "browser": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "tape": "~2.0.0"
+  },
+  "scripts": {
+    "test": "node test"
+  },
+  "author": {
+    "name": "Hugh Kennedy",
+    "email": "hughskennedy@gmail.com",
+    "url": "http://github.com/hughsk"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hughsk/clamp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hughsk/clamp/issues"
+  },
+  "keywords": [
+    "clamp",
+    "math",
+    "greater",
+    "less",
+    "than",
+    "between"
+  ],
+  "gitHead": "377851f0cca9f3f134b53881e294782cccdae4d8",
+  "homepage": "https://github.com/hughsk/clamp",
+  "_id": "clamp@1.0.1",
+  "_shasum": "66a0e64011816e37196828fdc8c8c147312c8634",
+  "_from": "clamp@>=1.0.1 <2.0.0",
+  "_npmVersion": "1.5.0-alpha-4",
+  "_npmUser": {
+    "name": "hughsk",
+    "email": "hughskennedy@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "hughsk",
+      "email": "hughskennedy@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "66a0e64011816e37196828fdc8c8c147312c8634",
+    "tarball": "https://registry.npmjs.org/clamp/-/clamp-1.0.1.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/clamp/-/clamp-1.0.1.tgz",
+  "readme": "ERROR: No README data found!"
+}

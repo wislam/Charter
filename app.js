@@ -5,13 +5,15 @@ import {
 	View,
 	StyleSheet,
 	DatePickerIOS,
-	TouchableHighlight
+	TouchableHighlight,
+	ListView
 } from 'react-native';
-import { Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem} from 'native-base';
+import { Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem } from 'native-base';
 import {
 	Button
 } from 'react-native-elements'
 import { StackNavigator } from 'react-navigation';
+import * as firebase from 'firebase';
 
 // tcomb-form-native
 var t = require('tcomb-form-native');
