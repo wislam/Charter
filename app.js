@@ -210,13 +210,33 @@ class CreateScreen extends React.Component {
 	};
 
 	onPress() {
-		console.log("Saved");
+		var value = this.refs.form.getValue();
+		console.log(value.time.toString());
+		var newtime = new Date(value.time.toString());
+		console.log('new one = ' + newtime.toDateString());
+		if (newtime == value.time) console.log('YES');
+		chartersRef.push({
+			destination: value.destination,
+			owner: "dudebro",
+			pickup: value.pickup,
+			riders: { coolgirl: "true" },
+			time: value.time,
+			timeline: { m1: "hahah" }
+		});
 	}
+
 	render() {
-		var Destinations = t.enums({ 1: 'Penn Station NY', 2: 'JFK Airport NY', 3: 'Philadelphia Airport' });
+
+		var Destinations = t.enums({
+			'PEN': 'Penn Station NY',
+			'JFK': 'JFK Airport NY',
+			'PHL': 'Philadelphia Airport'
+		});
 
 		var Pickups = t.enums({
-			1: 'Dillon Gym', 2: 'Frist Campus Center', 3: 'U-Store'
+			'DIL': 'Dillon Gym',
+			'FCC': 'Frist Campus Center',
+			'UST': 'U-Store'
 		});
 
 		// here we are: define your domain model
@@ -242,16 +262,17 @@ class CreateScreen extends React.Component {
 				}
 			}
 		}; // optional rendering options (see documentation)
+
 		return (
 			<View style={styles.container}>
-			<NewCharterForm
-			ref="form"
-			type={newCharter}
-			options={options}
-			/>
-			<TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
-			<Text style={styles.buttonText}>Save</Text>
-			</TouchableHighlight>
+				<NewCharterForm
+					ref="form"
+					type={newCharter}
+					options={options}
+				/>
+				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#99d9f4'>
+					<Text style={styles.buttonText}>Save</Text>
+				</TouchableHighlight>
 			</View>
 		);
 	}
@@ -261,9 +282,9 @@ class CreateScreen extends React.Component {
 const styles = StyleSheet.create({
 	container: {
 		justifyContent: 'center',
-		marginTop: 50,
 		padding: 20,
 		backgroundColor: '#EFF0F0',
+		flex: 1
 	},
 	title: {
 		fontSize: 30,
