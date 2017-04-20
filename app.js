@@ -211,16 +211,12 @@ class CreateScreen extends React.Component {
 
 	onPress() {
 		var value = this.refs.form.getValue();
-		console.log(value.time.toString());
-		var newtime = new Date(value.time.toString());
-		console.log('new one = ' + newtime.toDateString());
-		if (newtime == value.time) console.log('YES');
 		chartersRef.push({
 			destination: value.destination,
 			owner: "dudebro",
 			pickup: value.pickup,
 			riders: { coolgirl: "true" },
-			time: value.time,
+			time: value.time.toString(),
 			timeline: { m1: "hahah" }
 		});
 	}
