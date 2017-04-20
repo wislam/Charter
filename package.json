@@ -8,8 +8,13 @@
   },
   "dependencies": {
     "firebase": "^3.7.2",
+    "native-base": "2.1.0",
     "react": "15.4.2",
-    "react-native": "0.42.3"
+    "react-native": "0.42.3",
+    "react-native-elements": "^0.10.3",
+    "react-navigation": "^1.0.0-beta.7",
+    "react-timer-mixin": "^0.13.3",
+    "tcomb-form-native": "^0.6.7"
   },
   "devDependencies": {
     "babel-jest": "19.0.0",
