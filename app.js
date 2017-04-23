@@ -28,6 +28,8 @@ const firebaseConfig = {
 };
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const chartersRef = firebaseApp.database().ref().child('charters');
+const usersRef = firebaseApp.database().ref().child('users');
+var currentUser = 'dudebro';
 
 class LoginScreen extends React.Component {
 	static navigationOptions = {
@@ -83,9 +85,9 @@ class SearchScreen extends React.Component {
 		};
 	}
 
-	getRef() {
-		return firebaseApp.database().ref();
-	}
+	// getRef() {
+	// 	return firebaseApp.database().ref();
+	// }
 
 	listenForCharters(chartersRef) {
 		chartersRef.on('value', (snap) => {
@@ -209,16 +211,23 @@ class CreateScreen extends React.Component {
 		title: ({ state }) => `Create a new ride`
 	};
 
+	// // TODO this is the logic for joining a charter
+	// onPress() {
+	// 	firebaseApp.database().ref('charters/' + charterID + '/riders/' + currentUser).set(true);
+	// 	firebaseApp.database().ref('users/' + currentUser + '/charters-joined/' + charterID).set(true);
+	// }
+
 	onPress() {
 		var value = this.refs.form.getValue();
-		chartersRef.push({
+		let newCharter = chartersRef.push({
 			destination: value.destination,
-			owner: "dudebro",
+			owner: currentUser,
 			pickup: value.pickup,
-			riders: { coolgirl: "true" },
 			time: value.time.toString(),
-			timeline: { m1: "hahah" }
-		});
+			timeline: { m1: "Welcome to your new Charter! Use this timeline to post any updates." }
+		}).key;
+
+		firebaseApp.database().ref('users/' + currentUser + '/charters-owned/' + newCharter).set(true);
 	}
 
 	render() {
