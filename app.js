@@ -6,8 +6,7 @@ import {
 	StyleSheet,
 	DatePickerIOS,
 	TouchableHighlight,
-	ListView,
-	Platform
+	ListView
 } from 'react-native';
 import { Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem } from 'native-base';
 import {
@@ -31,23 +30,11 @@ const firebaseApp = firebase.initializeApp(firebaseConfig);
 const chartersRef = firebaseApp.database().ref().child('charters');
 const usersRef = firebaseApp.database().ref().child('users');
 var currentUser = 'dudebro';
+var database = firebase.database();
 
 class LoginScreen extends React.Component {
 	static navigationOptions = {
-		title: ' ',
-		header: {
-		    titleStyle: {
-		     	color: '#B5BABF',
-		     	letterSpacing: 2,
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#092742'
-		    },
-		    tintColor: {
-		      	backgroundColor: '#FCEE6D'
-		    }
-		  }
+		title: "Charter"
 	};
 	render() {
 		const { navigate } = this.props.navigation;
@@ -59,29 +46,30 @@ class LoginScreen extends React.Component {
 			title="Log in"
 			/>
 			</View>*/
-			<View style={styles.container}>
-				<Text style={{color:"white", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>CHARTER</Text>
-				<Content style={{ width: '80%', marginLeft: '9%'}}>
-					<Form >
-						<Item floatingLabel>
-							<Label style={{color:"#DDDDDD"}}>Username</Label>
-							<Input style={{color:"#DDDDDD"}} />
-						</Item>
-						<Item floatingLabel>
-							<Label style={{color:"#DDDDDD"}}>Password</Label>
-							<Input secureTextEntry={true} style={{color:"#DDDDDD"}}/>
-						</Item>
-					</Form>
-				</Content>
-				<TouchableHighlight style={styles.button} onPress={() => navigate('Search', { })} underlayColor='#e2d662'>
-					<Text style={styles.buttonText}>LOG IN</Text>
-				</TouchableHighlight>
-			</View>
+			<Container backgroundColor='#EFF0F0'>
+			<Content style={{ width: '80%', marginLeft: '9%'}}>
+			<Form >
+			<Item floatingLabel>
+			<Label>Username</Label>
+			<Input />
+			</Item>
+			<Item floatingLabel >
+			<Label>Password</Label>
+			<Input secureTextEntry={true}/>
+			</Item>
+			</Form>
+			</Content>
+			<Button
+			onPress={() => navigate('Search', { user: 'Christopher Eisgruber' })}
+			title='LOG IN' fontweight='bold' backgroundColor='#7CD3C8'/>
+			</Container>
 		);
 	}
 }
 
-///
+
+
+//////////////////
 
 class SearchScreen extends React.Component {
 	static navigationOptions = {
@@ -123,7 +111,7 @@ class SearchScreen extends React.Component {
 			var charters = [];
 			snap.forEach((child) => {
 				charters.push(child.val().destination);
-			});
+				});
 
 			this.setState({
 				dataSource: this.state.dataSource.cloneWithRows(charters)
@@ -138,12 +126,12 @@ class SearchScreen extends React.Component {
 
 	onPress() {
 		var value = this.refs.form.getValue();
-		var start = new Date(value.time);
+		var start = new Date(value.date);
 		chartersRef.orderByChild("destination").equalTo(value.destination).on("value", function(snap) {
 			snap.forEach(function(childSnap) {
 				var childData = childSnap.val();
 
-				var qstart = new Date(childData.time);
+				var qstart = new Date(childData.date);
 				if ((Math.abs(start - qstart) / 60000) < 30) {
 					// DO SOMETHING HERE
 				}
@@ -162,8 +150,7 @@ class SearchScreen extends React.Component {
 			'JFK': 'JFK Airport NY',
 			'PHL': 'Philadelphia Airport'
 		});
-
-		// here we are: define your domain model
+// here we are: define your domain model
 		var newCharter = t.struct({
 			destination: Destinations,     // a required string
 			time: t.Date               // a required number
@@ -179,7 +166,7 @@ class SearchScreen extends React.Component {
 					config: {
 						format: (date) => {
 							// TODO remove seconds
-							var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
+							var d = String(date.toDateString());
 							return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
 						}
 					}
@@ -191,14 +178,14 @@ class SearchScreen extends React.Component {
 		
 		return (
 			<View style={styles.container}>
-				<Text style={{color:"white", fontSize:45, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>SEARCH</Text>
+				<Text style={{color:"white", fontSize:45, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Arial"}}>SEARCH</Text>
 				<NewCharterForm
 					ref="form"
 					type={newCharter}
 					options={options}
 				/>
 
-				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('List', { })} underlayColor='#e2d662'>
 					<Text style={styles.buttonText}>SEARCH</Text>
 				</TouchableHighlight>
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { })} underlayColor='#e2d662'>
@@ -212,57 +199,103 @@ class SearchScreen extends React.Component {
 }
 
 
-class DetailScreen extends React.Component {
+
+class ListScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => ` `,
-		header: {
-		    titleStyle: {
-		     	color: '#B5BABF',
-		     	letterSpacing: 2,
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#092742'
-		    },
-		    tintColor: {
-		      	backgroundColor: '#FCEE6D'
-		    }
-		  }
+		title: ({ state }) => `Available Charters`,
+		//for ${state.params.user}
+	};
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			dataSource: new ListView.DataSource({
+				rowHasChanged: (row1, row2) => row1 !== row2,
+			})
+		};
+	}
+
+	// getRef() {
+	// 	return firebaseApp.database().ref();
+	// }
+
+	listenForCharters(chartersRef) {
+		chartersRef.on('value', (snap) => {
+
+			// get children as an array
+			var charters = [];
+			snap.forEach((child) => {
+				charters.push(child.val().destination);
+			});
+
+			this.setState({
+				dataSource: this.state.dataSource.cloneWithRows(charters)
+			});
+
+		});
+	}
+
+	componentDidMount() {
+		this.listenForCharters(chartersRef);
+	}
+
+	render() {
+		// The screen's current route is passed in to `props.navigation.state`:
+		const { params } = this.props.navigation.state;
+		const { navigate } = this.props.navigation;
+
+		return (
+			<Container backgroundColor='#EFF0F0'>
+			<Content style={{ marginTop: '7.5%' }} >
+			<Grid>
+			<Row>
+			<ListView
+				dataSource={this.state.dataSource}
+				renderRow={(rowData) => <Button title = {rowData} onPress={() => navigate('Detail', { user: 'Christopher Eisgruber'}) }/>}
+			/>
+
+			</Row>
+			</Grid>
+
+			</Content>
+			<Button raised title='CREATE NEW RIDE' style={{ float:'bottom' }} backgroundColor='#7CD3C8' onPress={() => navigate('Create', { user: 'Christopher Eisgruber' })}/>
+			</Container>
+		);
+	}
+	
+}
+
+class DetailScreen extends React.Component {
+
+	static navigationOptions = {
+		// Nav options can be defined as a function of the navigation prop:
+		title: ({ state }) => `Details for ride`,
 	};
 	render() {
 		// The screen's current route is passed in to `props.navigation.state`:
 		const { params } = this.props.navigation.state;
+		const { navigate } = this.props.navigation;
+
 		return (
 			/*<View>
 			<Text>Ride details</Text>
 			</View>*/
-			<View style={styles.container}>
-				<Content>
-					<Form>
-						<Item floatingLabel>
-							<Label>Departure Time:</Label>
-							<Input />
-						</Item>
-						<Item floatingLabel last>
-							<Label>Estimated Arrival Time:</Label>
-							<Input />
-						</Item>
-						<Item floatingLabel last>
-							<Label>Destination:</Label>
-							<Input />
-						</Item>
-						<Item floatingLabel last>
-							<Label>Pickup Location:</Label>
-							<Input />
-						</Item>
-						<Item floatingLabel last>
-							<Label>Current Riders:</Label>
-							<Input />
-						</Item>
-					</Form>
-				</Content>
-			</View>
+			<Container backgroundColor='#EFF0F0'>
+			<Content style={{ marginTop: '7.5%' }}>
+
+			<Text style={{color:"7CD3C8", fontSize:20, fontWeight:'100', fontFamily:"Arial"}}>Departure Time: </Text>
+			
+			<Text style={{color:"7CD3C8", fontSize:20, fontWeight:'100', fontFamily:"Arial"}}>Estimated Arrival Time:</Text>
+			
+			<Text style={{color:"7CD3C8", fontSize:20, fontWeight:'100', fontFamily:"Arial"}}>Destination:</Text>
+			
+			<Text style={{color:"7CD3C8", fontSize:20, fontWeight:'100', fontFamily:"Arial"}}>Pickup Location:</Text>
+			
+			<Text style={{color:"7CD3C8", fontSize:20, fontWeight:'100', fontFamily:"Arial"}}>Current Riders:</Text>
+			
+			</Content>
+			</Container>
 		);
 	}
 }
@@ -270,20 +303,7 @@ class DetailScreen extends React.Component {
 class CreateScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => " ",
-		header: {
-		    titleStyle: {
-		     	color: '#B5BABF',
-		     	letterSpacing: 2,
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#092742'
-		    },
-		    tintColor: {
-		      	backgroundColor: '#FCEE6D'
-		    }
-		  }
+		title: ({ state }) => `Create a new ride`
 	};
 
 	// // TODO this is the logic for joining a charter
@@ -293,24 +313,19 @@ class CreateScreen extends React.Component {
 	// }
 
 	onPress() {
-		const { navigate } = this.props.navigation;
 		var value = this.refs.form.getValue();
 		let newCharter = chartersRef.push({
 			destination: value.destination,
 			owner: currentUser,
 			pickup: value.pickup,
 			time: value.time.toString(),
-			timeline: { m1: 'Welcome to your new Charter! Use this timeline to post any updates.' }
+			timeline: { m1: "Welcome to your new Charter! Use this timeline to post any updates." }
 		}).key;
 
 		firebaseApp.database().ref('users/' + currentUser + '/charters-owned/' + newCharter).set(true);
-		navigate('Detail', { });
 	}
 
 	render() {
-
-		const { params } = this.props.navigation.state;
-		const { navigate } = this.props.navigation;
 
 		var Destinations = t.enums({
 			'PEN': 'Penn Station NY',
@@ -334,10 +349,10 @@ class CreateScreen extends React.Component {
 		var options = {
 			fields: {
 				destination: {
-					label: "Where to?"
+					label: 'Where to?'
 				},
 				time: {
-					label: "When?",
+					label: 'When?',
 					config: {
 						format: (date) => {
 							// TODO remove seconds
@@ -346,18 +361,17 @@ class CreateScreen extends React.Component {
 					}
 				}
 			}
-		}; 
+		}; // optional rendering options (see documentation)
 
 		return (
 			<View style={styles.container}>
-				<Text style={{color:"white", fontSize:45, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>CREATE A RIDE</Text>
 				<NewCharterForm
 					ref="form"
 					type={newCharter}
 					options={options}
 				/>
-				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#e2d662'>
-					<Text style={styles.buttonText}>SAVE</Text>
+				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#99d9f4'>
+					<Text style={styles.buttonText}>Save</Text>
 				</TouchableHighlight>
 			</View>
 		);
@@ -369,8 +383,8 @@ const styles = StyleSheet.create({
 	container: {
 		justifyContent: 'center',
 		padding: 20,
-		backgroundColor: '#0C3458',
-		flex: 1,
+		backgroundColor: '#EFF0F0',
+		flex: 1
 	},
 	title: {
 		fontSize: 30,
@@ -378,43 +392,33 @@ const styles = StyleSheet.create({
 		marginBottom: 30
 	},
 	buttonText: {
-		fontSize: 15,
-		color: '#2C3440',
-		//color: 'white',
-		alignSelf: 'center',
-		fontWeight: 'bold',
-		letterSpacing: 2,
+		fontSize: 18,
+		color: 'white',
+		alignSelf: 'center'
 	},
 	button: {
 		height: 36,
-		//backgroundColor: '#48BBEC',
-		//borderColor: '#48BBEC',
-		backgroundColor: '#FCEE6D',
-		borderColor: '#FCEE6D',
+		backgroundColor: '#48BBEC',
+		borderColor: '#48BBEC',
 		borderWidth: 1,
 		borderRadius: 8,
 		marginBottom: 10,
 		alignSelf: 'stretch',
-		justifyContent: 'center',
-
+		justifyContent: 'center'
 	},
 	welcome: {
 		fontSize: 20,
 		textAlign: 'center',
 		margin: 10,
-	},
-
+	}
 });
 
 const Charter = StackNavigator({
 	Login:  { screen: LoginScreen  },
 	Search: { screen: SearchScreen },
+	List:   { screen: ListScreen   },
 	Detail: { screen: DetailScreen },
 	Create: { screen: CreateScreen },
-}, {
-      headerMode: 'screen'
 });
-
-
 
 AppRegistry.registerComponent('Charter', () => Charter);
