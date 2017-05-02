@@ -7,7 +7,8 @@ import {
 	DatePickerIOS,
 	TouchableHighlight,
 	ListView,
-	Platform
+	Platform,
+	Alert
 } from 'react-native';
 import { Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem } from 'native-base';
 import {
@@ -30,9 +31,22 @@ const firebaseConfig = {
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const chartersRef = firebaseApp.database().ref().child('charters');
 const usersRef = firebaseApp.database().ref().child('users');
-var currentUser = 'dudebro';
 
-class LoginScreen extends React.Component {
+class WelcomeScreen extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			email: "",
+			password: "",
+			response: ""
+		};
+
+		this.signup = this.signup.bind(this);
+		this.login = this.login.bind(this);
+		this.navigate = this
+	}
+
 	static navigationOptions = {
 		title: ' ',
 		header: {
@@ -49,31 +63,104 @@ class LoginScreen extends React.Component {
 		    }
 		  }
 	};
+
+	async signup() {
+		const { navigate } = this.props.navigation;
+
+		try {
+			await firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password);
+
+			console.log("Account created with " + this.state.email);
+
+			let newUid = firebase.a
+
+			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid).set({
+				email: this.state.email
+			});
+
+			// Navigate to the Complete page, the user is auto logged in
+			navigate('Complete', { });
+
+			} catch (error) {
+				// TODO WAQA link this to functionality
+				Alert.alert(
+            		error.toString(),
+            		null,
+            		[
+		              {text: 'Forgot Password?', onPress: () => console.log('Forgot Password?')},
+		              {text: 'Login', onPress: () => console.log('Login')},
+		              {text: 'Signup', onPress: () => console.log('Signup')},
+		            ]
+		         )
+				console.log(error.toString())
+		}
+
+
+	}
+
+	async login() {
+
+		const { navigate } = this.props.navigation;
+
+		try {
+			await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
+
+			console.log("Logged In!" + firebase.auth().currentUser.uid);
+
+			// Navigate to the Home page
+			navigate('Search', { });
+
+		} catch (error) {
+			// TODO WAQA link this to functionality
+			Alert.alert(
+				error.toString(),
+				null,
+				[
+				  {text: 'Forgot Password?', onPress: () => console.log('Forgot Password?')},
+				  {text: 'Login', onPress: () => console.log('Login')},
+				  {text: 'Signup', onPress: () => console.log('Signup')},
+				]
+			 )
+			console.log(error.toString())
+		}
+
+	}
+
 	render() {
 		const { navigate } = this.props.navigation;
+		var user = firebase.auth().currentUser;
+		if (user != null) {
+			console.log(user.uid);
+			console.log(user.displayName);
+		}
 		return (
-			/*<View>
-			<Text>Login</Text>
-			<Button
-			onPress={() => navigate('Search', { user: 'Christopher Eisgruber' })}
-			title="Log in"
-			/>
-			</View>*/
 			<View style={styles.container}>
 				<Text style={{color:"white", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>CHARTER</Text>
 				<Content style={{ width: '80%', marginLeft: '9%'}}>
-					<Form >
+					<Form>
 						<Item floatingLabel>
 							<Label style={{color:"#DDDDDD"}}>Username</Label>
-							<Input style={{color:"#DDDDDD"}} />
+							<Input
+								style={{color:"#DDDDDD"}}
+								onChangeText={(email) => this.setState({email})}
+								keyboardType="email-address"
+                autoCapitalize="none" />
 						</Item>
 						<Item floatingLabel>
 							<Label style={{color:"#DDDDDD"}}>Password</Label>
-							<Input secureTextEntry={true} style={{color:"#DDDDDD"}}/>
+							<Input
+								style={{color:"#DDDDDD"}}
+								onChangeText={(password) => this.setState({password})}
+                password={true}
+                autoCapitalize="none"/>
 						</Item>
 					</Form>
 				</Content>
-				<TouchableHighlight style={styles.button} onPress={() => navigate('Search', { })} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={this.signup} underlayColor='#e2d662'>
+					<Text style={styles.buttonText}>SIGN UP</Text>
+				</TouchableHighlight>
+
+				<TouchableHighlight style={styles.button} onPress={this.login} underlayColor='#e2d662'>
 					<Text style={styles.buttonText}>LOG IN</Text>
 				</TouchableHighlight>
 			</View>
@@ -81,7 +168,77 @@ class LoginScreen extends React.Component {
 	}
 }
 
-///
+class CompleteScreen extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			// TODO WAQA photos
+			displayName: ""
+		};
+
+		this.updateInfo = this.updateInfo.bind(this);
+	}
+
+	static navigationOptions = {
+		// Nav options can be defined as a function of the navigation prop:
+		title: ({ state }) => ` `,
+		header: {
+				titleStyle: {
+					color: '#B5BABF',
+					letterSpacing: 2,
+					fontWeight: '500'
+				},
+				style: {
+					backgroundColor: '#092742'
+				},
+				tintColor: {
+						backgroundColor: '#FCEE6D'
+				}
+			}
+	};
+
+	updateInfo() {
+		const { navigate } = this.props.navigation;
+
+		var user = firebase.auth().currentUser;
+		user.updateProfile({
+			displayName: this.state.displayName
+		}).then(function() {
+			console.log(user.displayName)
+			firebaseApp.database().ref('users/' + user.uid + '/name').set(
+				user.displayName
+			);
+			navigate('SearchScreen', {});
+		}, function(error) {
+			console.log("ERROR")
+		});
+	}
+
+	render() {
+		// const { navigate } = this.props.navigation;
+		const { params } = this.props.navigation.state;
+
+		return (
+			<View style={styles.container}>
+				<Text style={{color:"white", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>CHARTER</Text>
+				<Content style={{ width: '80%', marginLeft: '9%'}}>
+					<Form>
+						<Item floatingLabel>
+							<Label style={{color:"#DDDDDD"}}>Name</Label>
+							<Input
+								style={{color:"#DDDDDD"}}
+								onChangeText={(displayName) => this.setState({displayName})} />
+						</Item>
+					</Form>
+				</Content>
+				<TouchableHighlight style={styles.button} onPress={this.updateInfo} underlayColor='#e2d662'>
+					<Text style={styles.buttonText}>COMPLETE SIGN UP</Text>
+				</TouchableHighlight>
+			</View>
+		);
+	}
+
+}
 
 class SearchScreen extends React.Component {
 	static navigationOptions = {
@@ -188,7 +345,7 @@ class SearchScreen extends React.Component {
 
 		}; // optional rendering options (see documentation)
 
-		
+
 		return (
 			<View style={styles.container}>
 				<Text style={{color:"white", fontSize:45, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>SEARCH</Text>
@@ -205,7 +362,7 @@ class SearchScreen extends React.Component {
 					<Text style={styles.buttonText}>CREATE</Text>
 				</TouchableHighlight>
 			</View>
-			
+
 
 		);
 	}
@@ -297,13 +454,13 @@ class CreateScreen extends React.Component {
 		var value = this.refs.form.getValue();
 		let newCharter = chartersRef.push({
 			destination: value.destination,
-			owner: currentUser,
+			owner: firebase.auth().currentUser.uid,
 			pickup: value.pickup,
 			time: value.time.toString(),
 			timeline: { m1: 'Welcome to your new Charter! Use this timeline to post any updates.' }
 		}).key;
 
-		firebaseApp.database().ref('users/' + currentUser + '/charters-owned/' + newCharter).set(true);
+		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-owned/' + newCharter).set(true);
 		navigate('Detail', { });
 	}
 
@@ -346,7 +503,7 @@ class CreateScreen extends React.Component {
 					}
 				}
 			}
-		}; 
+		};
 
 		return (
 			<View style={styles.container}>
@@ -407,7 +564,9 @@ const styles = StyleSheet.create({
 });
 
 const Charter = StackNavigator({
-	Login:  { screen: LoginScreen  },
+	Signup: { screen: WelcomeScreen },
+	Complete: { screen: CompleteScreen },
+	// Login:  { screen: LoginScreen  },
 	Search: { screen: SearchScreen },
 	Detail: { screen: DetailScreen },
 	Create: { screen: CreateScreen },
