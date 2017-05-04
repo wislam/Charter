@@ -8,9 +8,10 @@ import {
 	TouchableHighlight,
 	ListView,
 	Platform,
-	Alert
+	Alert,
+	Image
 } from 'react-native';
-import { Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem } from 'native-base';
+import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem } from 'native-base';
 import {
 	Button
 } from 'react-native-elements'
@@ -128,11 +129,14 @@ class WelcomeScreen extends React.Component {
 
 	render() {
 		const { navigate } = this.props.navigation;
-		var user = firebase.auth().currentUser;
-		if (user != null) {
-			console.log(user.uid);
-			console.log(user.displayName);
-		}
+		firebase.auth().onAuthStateChanged(function(user) {
+			if (user) {
+			    console.log(user.uid);
+				navigate('Search', { });
+		  	} else {
+			    console.log("no user");
+		  	}
+		});
 		return (
 			<View style={styles.container}>
 				<Text style={{color:"white", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>CHARTER</Text>
@@ -355,7 +359,7 @@ class SearchScreen extends React.Component {
 					options={options}
 				/>
 
-				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('List', { })} underlayColor='#e2d662'>
 					<Text style={styles.buttonText}>SEARCH</Text>
 				</TouchableHighlight>
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { })} underlayColor='#e2d662'>
@@ -368,11 +372,86 @@ class SearchScreen extends React.Component {
 	}
 }
 
+class ListScreen extends React.Component {
+	static navigationOptions = {
+		// Nav options can be defined as a function of the navigation prop:
+		title: ({ state }) => `Available Charters`,
+		//for ${state.params.user}
+	};
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			dataSource: new ListView.DataSource({
+				rowHasChanged: (row1, row2) => row1 !== row2,
+			})
+		};
+		this.getDestination = this.getDestination.bind(this);
+	}
+
+	listenForCharters(chartersRef) {
+		chartersRef.on('value', (snap) => {
+
+			// get children as an array
+			var list_charters = [];
+			snap.forEach((child) => {
+				list_charters.push(child.key);
+			});
+			// console.log(list_charters);
+
+			this.setState({
+				dataSource: this.state.dataSource.cloneWithRows(list_charters)
+			});
+
+		});
+	}
+
+	getDestination(charterId) {
+		console.log(charterId);
+		var destination = " ";
+		firebase.database().ref('charters/' + charterId).once('value').then((snapshot) => {
+			destination = snapshot.val().destination;
+		});
+		console.log(destination);
+		return destination;
+	}
+
+	componentDidMount() {
+		this.listenForCharters(chartersRef);
+	}
+
+		render() {
+		// The screen's current route is passed in to `props.navigation.state`:
+		const { params } = this.props.navigation.state;
+		const { navigate } = this.props.navigation;
+
+		return (
+			<Container backgroundColor='#EFF0F0'>
+			<Content style={{ marginTop: '7.5%' }} >
+			<Grid>
+			<Row>
+			<ListView
+				dataSource={this.state.dataSource}
+				renderRow={(rowData) => <Text>{this.getDestination(rowData).destination}</Text>}
+			/>
+
+			</Row>
+			</Grid>
+
+			</Content>
+			<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { user: 'Christopher Eisgruber' })} underlayColor='#e2d662'>
+					<Text style={styles.buttonText}>CREATE NEW RIDE</Text>
+			</TouchableHighlight>
+			</Container>
+		);
+	}
+
+}
 
 class DetailScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => ` `,
+		title: ({ state }) => `Ride Details`,
 		header: {
 		    titleStyle: {
 		     	color: '#B5BABF',
@@ -381,45 +460,75 @@ class DetailScreen extends React.Component {
 		    },
 		    style: {
 		     	backgroundColor: '#092742'
+
 		    },
 		    tintColor: {
 		      	backgroundColor: '#FCEE6D'
 		    }
 		  }
 	};
+
+	join() {
+		firebaseApp.database().ref('charters/' + charterID + '/riders/' + currentUser).set(true);
+		firebaseApp.database().ref('users/' + currentUser + '/charters-joined/' + charterID).set(true);
+	}
+
 	render() {
 		// The screen's current route is passed in to `props.navigation.state`:
 		const { params } = this.props.navigation.state;
+		const { navigate } = this.props.navigation;
+
 		return (
-			/*<View>
-			<Text>Ride details</Text>
-			</View>*/
-			<View style={styles.container}>
-				<Content>
-					<Form>
-						<Item floatingLabel>
-							<Label>Departure Time:</Label>
-							<Input />
-						</Item>
-						<Item floatingLabel last>
-							<Label>Estimated Arrival Time:</Label>
-							<Input />
-						</Item>
-						<Item floatingLabel last>
-							<Label>Destination:</Label>
-							<Input />
-						</Item>
-						<Item floatingLabel last>
-							<Label>Pickup Location:</Label>
-							<Input />
-						</Item>
-						<Item floatingLabel last>
-							<Label>Current Riders:</Label>
-							<Input />
-						</Item>
-					</Form>
-				</Content>
+			<Container backgroundColor='#EFF0F0'>
+			<Content>
+
+			<View>
+			<Image  style={{width: 420, height: 220, flex: 1, justifyContent: 'center', alignItems: 'center'}}
+              	source={require('./nyc.jpg')}
+              />
+
+              <ListItem>
+			<Left><Text style={styles.bodyText}>Destination</Text></Left>
+			<Left><Text note>Departure Time, Pickup Location</Text></Left>
+			 </ListItem>
+
+            <ListItem avatar>
+		       <Left><Thumbnail source={require('./one.jpg')} /></Left>
+		    	<Body>
+		    		<Text style={{fontWeight: 'bold', fontSize: 15}}>Waqa Islam </Text>
+		    	</Body>
+		    </ListItem>
+
+
+
+			<Text style={styles.bodyText}>Current Riders:</Text>
+
 			</View>
+
+		    <ListItem avatar>
+		                <Left>
+		                    <Thumbnail source={require('./two.jpg')} />
+		                </Left>
+		                <Body>
+		                	<Text> Kelly Zhou </Text>
+		                </Body>
+		    </ListItem>
+		    <ListItem avatar>
+		                <Left>
+		                    <Thumbnail source={require('./three.jpg')} />
+		                </Left>
+		                <Body>
+		                	<Text> Matt Rosen </Text>
+		                </Body>
+			</ListItem>
+
+			</Content>
+			<TouchableHighlight style={styles.button} onPress={this.join} underlayColor='#e2d662'>
+					<Text style={styles.buttonText}>JOIN RIDE</Text>
+			</TouchableHighlight>
+			</Container>
+
+
 		);
 	}
 }
@@ -443,24 +552,23 @@ class CreateScreen extends React.Component {
 		  }
 	};
 
-	// // TODO this is the logic for joining a charter
-	// onPress() {
-	// 	firebaseApp.database().ref('charters/' + charterID + '/riders/' + currentUser).set(true);
-	// 	firebaseApp.database().ref('users/' + currentUser + '/charters-joined/' + charterID).set(true);
-	// }
-
 	onPress() {
 		const { navigate } = this.props.navigation;
 		var value = this.refs.form.getValue();
-		let newCharter = chartersRef.push({
+		var newCharterKey = firebase.database().ref('charters/').push().key;
+
+		var newCharterData = {
+			id: newCharterKey,
 			destination: value.destination,
 			owner: firebase.auth().currentUser.uid,
 			pickup: value.pickup,
 			time: value.time.toString(),
 			timeline: { m1: 'Welcome to your new Charter! Use this timeline to post any updates.' }
-		}).key;
+		}
 
-		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-owned/' + newCharter).set(true);
+		firebase.database().ref('charters/' + newCharterKey).set(newCharterData);
+
+		firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-owned/' + newCharterKey).set(true);
 		navigate('Detail', { });
 	}
 
@@ -560,13 +668,18 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		margin: 10,
 	},
+	bodyText: {
+  		fontSize: 20,
+  		fontWeight: 'bold',
+		color: '#2C3440'
+	},
 
 });
 
 const Charter = StackNavigator({
 	Signup: { screen: WelcomeScreen },
 	Complete: { screen: CompleteScreen },
-	// Login:  { screen: LoginScreen  },
+	List:   { screen: ListScreen   },
 	Search: { screen: SearchScreen },
 	Detail: { screen: DetailScreen },
 	Create: { screen: CreateScreen },
