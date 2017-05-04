@@ -69,7 +69,7 @@ class WelcomeScreen extends React.Component {
 		     	fontWeight: '500'
 		    },
 		    style: {
-		     	backgroundColor: '#092742'
+		     	backgroundColor: '#00FFCC'
 		    },
 		    tintColor: {
 		      	backgroundColor: '#FCEE6D'
@@ -151,32 +151,32 @@ class WelcomeScreen extends React.Component {
 		});
 		return (
 			<View style={styles.container}>
-				<Text style={{color:"white", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>CHARTER</Text>
+				<Text style={{color:"#00FFCC", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"oregon"}}>CHARTER</Text>
 				<Content style={{ width: '80%', marginLeft: '9%'}}>
 					<Form>
 						<Item floatingLabel>
-							<Label style={{color:"#DDDDDD"}}>Username</Label>
+							<Label style={{color:"black"}}>Username</Label>
 							<Input
-								style={{color:"#DDDDDD"}}
+								style={{color:"black"}}
 								onChangeText={(email) => this.setState({email})}
 								keyboardType="email-address"
                 autoCapitalize="none" />
 						</Item>
 						<Item floatingLabel>
-							<Label style={{color:"#DDDDDD"}}>Password</Label>
+							<Label style={{color:"black"}}>Password</Label>
 							<Input
-								style={{color:"#DDDDDD"}}
+								style={{color:"black"}}
 								onChangeText={(password) => this.setState({password})}
                 password={true}
                 autoCapitalize="none"/>
 						</Item>
 					</Form>
 				</Content>
-				<TouchableHighlight style={styles.button} onPress={this.signup} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={this.signup} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>SIGN UP</Text>
 				</TouchableHighlight>
 
-				<TouchableHighlight style={styles.button} onPress={this.login} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={this.login} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>LOG IN</Text>
 				</TouchableHighlight>
 			</View>
@@ -200,12 +200,12 @@ class CompleteScreen extends React.Component {
 		title: ({ state }) => ` `,
 		header: {
 				titleStyle: {
-					color: '#B5BABF',
+					color: '#307d8e',
 					letterSpacing: 2,
 					fontWeight: '500'
 				},
 				style: {
-					backgroundColor: '#092742'
+					backgroundColor: '#00FFCC'
 				},
 				tintColor: {
 						backgroundColor: '#FCEE6D'
@@ -236,18 +236,18 @@ class CompleteScreen extends React.Component {
 
 		return (
 			<View style={styles.container}>
-				<Text style={{color:"white", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>CHARTER</Text>
+				<Text style={{color:"white", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"oregon"}}>CHARTER</Text>
 				<Content style={{ width: '80%', marginLeft: '9%'}}>
 					<Form>
 						<Item floatingLabel>
-							<Label style={{color:"#DDDDDD"}}>Name</Label>
+							<Label style={{color:"#black"}}>Name</Label>
 							<Input
-								style={{color:"#DDDDDD"}}
+								style={{color:"#black"}}
 								onChangeText={(displayName) => this.setState({displayName})} />
 						</Item>
 					</Form>
 				</Content>
-				<TouchableHighlight style={styles.button} onPress={this.updateInfo} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={this.updateInfo} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>COMPLETE SIGN UP</Text>
 				</TouchableHighlight>
 			</View>
@@ -259,15 +259,16 @@ class CompleteScreen extends React.Component {
 class SearchScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => ` `,
+		title: ({ state }) => `SEARCH`,
 		header: {
 		    titleStyle: {
-		     	color: '#B5BABF',
+		     	color: 'black',
 		     	letterSpacing: 2,
+			fontFamily: "oregon",
 		     	fontWeight: '500'
 		    },
 		    style: {
-		     	backgroundColor: '#092742'
+		     	backgroundColor: '#00FFCC'
 		    },
 		    tintColor: {
 		      	backgroundColor: '#FCEE6D'
@@ -393,17 +394,17 @@ class SearchScreen extends React.Component {
 
 		return (
 			<View style={styles.container}>
-				<Text style={{color:"white", fontSize:45, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>SEARCH</Text>
+				
 				<NewCharterForm
 					ref="form"
 					type={newCharter}
 					options={options}
 				/>
 
-				<TouchableHighlight style={styles.button} onPress={() => navigate('List', { })} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('List', { })} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>SEARCH</Text>
 				</TouchableHighlight>
-				<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { })} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { })} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>CREATE</Text>
 				</TouchableHighlight>
 				<TouchableHighlight style={styles.button} onPress={this.logout} underlayColor='#e2d662'>
@@ -418,6 +419,20 @@ class ListScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
 		title: ({ state }) => `Available Charters`,
+		header: {
+		    titleStyle: {
+		     	letterSpacing: 2,
+		     	fontWeight: '500',
+		     	fontFamily: "oregon",
+		     	color: 'black',
+		    },
+		    style: {
+		     	backgroundColor: '#00FFCC'
+		    },
+		    tintColor: {
+		      	backgroundColor: '#FCEE6D'
+		    }
+		  }
 		//for ${state.params.user}
 	};
 
@@ -465,7 +480,7 @@ class ListScreen extends React.Component {
 		<ListView
 			dataSource={this.state.dataSource}
 			renderRow={(rowData) =>
-				<TouchableHighlight style={styles.button} onPress={() => navigate('Detail', { charterId: rowData.id })} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('Detail', { charterId: rowData.id })} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>{Destinations[rowData.destination]}</Text>
 				</TouchableHighlight>}
 		/>
@@ -474,7 +489,7 @@ class ListScreen extends React.Component {
 		</Grid>
 
 		</Content>
-		<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { user: 'Christopher Eisgruber' })} underlayColor='#e2d662'>
+		<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { user: 'Christopher Eisgruber' })} underlayColor='#00FFCC'>
 				<Text style={styles.buttonText}>CREATE NEW RIDE</Text>
 		</TouchableHighlight>
 		</Container>
@@ -489,13 +504,13 @@ class DetailScreen extends React.Component {
 		title: ({ state }) => `Ride Details`,
 		header: {
 		    titleStyle: {
-		     	color: '#B5BABF',
 		     	letterSpacing: 2,
-		     	fontWeight: '500'
+		     	fontWeight: '500',
+		     	fontFamily: "oregon",
+		     	color: 'black',
 		    },
 		    style: {
-		     	backgroundColor: '#092742'
-
+		     	backgroundColor: '#00FFCC'
 		    },
 		    tintColor: {
 		      	backgroundColor: '#FCEE6D'
@@ -625,7 +640,7 @@ class DetailScreen extends React.Component {
 				</ListItem>} />
 
 			</Content>
-			<TouchableHighlight style={styles.button} onPress={this.join} underlayColor='#e2d662'>
+			<TouchableHighlight style={styles.button} onPress={this.join} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>JOIN RIDE</Text>
 			</TouchableHighlight>
 			</Container>
@@ -638,15 +653,16 @@ class DetailScreen extends React.Component {
 class CreateScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => " ",
+		title: ({ state }) => "CREATE A RIDE",
 		header: {
 		    titleStyle: {
-		     	color: '#B5BABF',
 		     	letterSpacing: 2,
-		     	fontWeight: '500'
+		     	fontWeight: '500',
+		     	fontFamily: "oregon",
+		     	color: 'black',
 		    },
 		    style: {
-		     	backgroundColor: '#092742'
+		     	backgroundColor: '#00FFCC'
 		    },
 		    tintColor: {
 		      	backgroundColor: '#FCEE6D'
@@ -717,13 +733,12 @@ class CreateScreen extends React.Component {
 
 		return (
 			<View style={styles.container}>
-				<Text style={{color:"white", fontSize:45, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"Jaapokki subtract"}}>CREATE A RIDE</Text>
 				<NewCharterForm
 					ref="form"
 					type={newCharter}
 					options={options}
 				/>
-				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>SAVE</Text>
 				</TouchableHighlight>
 			</View>
@@ -736,28 +751,28 @@ const styles = StyleSheet.create({
 	container: {
 		justifyContent: 'center',
 		padding: 20,
-		backgroundColor: '#0C3458',
+		backgroundColor: 'white',
 		flex: 1,
+		color: 'black',
 	},
 	title: {
-		fontSize: 30,
+		fontSize: 40,
+		fontFamily: "oregon",
+		color: 'black',
 		alignSelf: 'center',
 		marginBottom: 30
 	},
 	buttonText: {
 		fontSize: 15,
-		color: '#2C3440',
-		//color: 'white',
+		color: 'white',
 		alignSelf: 'center',
 		fontWeight: 'bold',
 		letterSpacing: 2,
 	},
 	button: {
 		height: 36,
-		//backgroundColor: '#48BBEC',
-		//borderColor: '#48BBEC',
-		backgroundColor: '#FCEE6D',
-		borderColor: '#FCEE6D',
+		backgroundColor: '#307d8e',
+		borderColor: '#307d8e',
 		borderWidth: 1,
 		borderRadius: 8,
 		marginBottom: 10,
@@ -773,9 +788,8 @@ const styles = StyleSheet.create({
 	bodyText: {
   		fontSize: 20,
   		fontWeight: 'bold',
-		color: '#2C3440'
-	},
-
+		color: 'black'
+	}
 });
 
 const Charter = StackNavigator({
