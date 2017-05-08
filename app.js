@@ -1,4 +1,5 @@
 import React from 'react';
+import stripe from 'tipsi-stripe'
 import {
 	AppRegistry,
 	Text,
@@ -9,7 +10,8 @@ import {
 	ListView,
 	Platform,
 	Alert,
-	Image
+	Image,
+	Switch
 } from 'react-native';
 import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem } from 'native-base';
 import {
@@ -47,6 +49,11 @@ var Pickups = {
 
 class WelcomeScreen extends React.Component {
 	constructor(props) {
+		stripe.init({
+	  publishableKey: 'pk_test_1EEnYhGwfy50KhTeVRMkEbDH',
+	  merchantId: 'MERCHANT_ID', // Optional
+	})
+
 		super(props);
 
 		this.state = {
@@ -407,8 +414,12 @@ class SearchScreen extends React.Component {
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { })} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>CREATE</Text>
 				</TouchableHighlight>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('Pay', { })} underlayColor='#e2d662'>
+					<Text style={styles.buttonText}>Pay</Text>
+				</TouchableHighlight>
 				<TouchableHighlight style={styles.button} onPress={this.logout} underlayColor='#e2d662'>
 					<Text style={styles.buttonText}>LOG OUT</Text>
+
 				</TouchableHighlight>
 			</View>
 		);
@@ -649,6 +660,127 @@ class DetailScreen extends React.Component {
 		);
 	}
 }
+export default class CardFormScreen extends React.Component {
+	  state = {
+	    loading: false,
+	    allowed: false,
+	    complete: true,
+	    status: null,
+	    token: null,
+	  }
+
+	  async componentWillMount() {
+	    const allowed = await stripe.deviceSupportsApplePay()
+	    this.setState({ allowed })
+	  }
+
+	  handleCompleteChange = (complete) => (
+	    this.setState({ complete })
+	  )
+
+	  handleApplePayPress = async () => {
+	    try {
+	      this.setState({
+	        loading: true,
+	        status: null,
+	        token: null,
+	      })
+	      const token = await stripe.paymentRequestWithApplePay([{
+	        label: 'Ride Deposit',
+	        amount: '10.00',
+	      }], {
+	        // requiredBillingAddressFields: 'all',
+	        // requiredShippingAddressFields: 'all',
+	        shippingMethods: [{
+	          id: 'Digital',
+	          label: 'Online',
+	          detail: 'FREE',
+	          amount: '0.00',
+	        }],
+	      })
+
+	      console.log('Result:', token)
+	      this.setState({ loading: false, token })
+
+	      if (this.state.complete) {
+	        await stripe.completeApplePayRequest()
+	        console.log('Apple Pay payment completed')
+	        this.setState({ status: 'Apple Pay payment completed'})
+	      } else {
+	        await stripe.cancelApplePayRequest()
+	        console.log('Apple Pay payment cenceled')
+	        this.setState({ status: 'Apple Pay payment cenceled'})
+	      }
+	    } catch (error) {
+	      console.log('Error:', error)
+	      this.setState({ loading: false, status: `Error: ${error.message}` })
+	    }
+	  }
+
+	  handleSetupApplePayPress = () => (
+	    stripe.openApplePaySetup()
+	  )
+
+	  render() {
+	    const { loading, allowed, complete, status, token } = this.state
+
+	    return (
+	      <View style={styles.container}>
+	        <Text style={styles.header}>
+	          Apple Pay Example
+	        </Text>
+	        <Text style={styles.instruction}>
+	          Click button to show Apple Pay dialog.
+	        </Text>
+	        <Button
+	          text="Pay with Pay"
+	          disabledText="Not supported"
+	          loading={loading}
+	          disabled={!allowed}
+	          onPress={this.handleApplePayPress}
+
+	        />
+	        <Text style={styles.instruction}>
+	          Complete the operation on tokent
+	        </Text>
+	        <Switch
+	          style={styles.switch}
+	          value={complete}
+	          onValueChange={this.handleCompleteChange}
+
+	        />
+	        <View>
+	          {token &&
+	            <Text
+	              style={styles.instruction}
+	              >
+	              Token: {token.tokenId}
+	            </Text>
+	          }
+	          {status &&
+	            <Text
+	              style={styles.instruction}
+	            >
+	              {status}
+	            </Text>
+	          }
+	        </View>
+	        <View style={styles.hintContainer}>
+	          <Button
+	            text="Setup Pay"
+	            disabledText="Not supported"
+	            disabled={!allowed}
+	            onPress={this.handleSetupApplePayPress}
+
+	          />
+	          <Text style={styles.hint}>
+	            ('Setup Pay' works only on real device)
+	          </Text>
+	        </View>
+	      </View>
+	    )
+	  }
+	}
 
 class CreateScreen extends React.Component {
 	static navigationOptions = {
@@ -799,6 +931,7 @@ const Charter = StackNavigator({
 	Search: { screen: SearchScreen },
 	Detail: { screen: DetailScreen },
 	Create: { screen: CreateScreen },
+	Pay: { screen: CardFormScreen },
 }, {
       headerMode: 'screen'
 });
