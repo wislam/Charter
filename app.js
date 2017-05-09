@@ -1,4 +1,7 @@
+
+'use strict';
 import React from 'react';
+
 import stripe from 'tipsi-stripe'
 import {
 	AppRegistry,
@@ -13,10 +16,18 @@ import {
 	Image,
 	Switch
 } from 'react-native';
+var UIExplorerBlock = require('./');
+var ReactNative = require('react-native');
+var {
+  Linking,
+
+  TouchableOpacity,
+
+} = ReactNative;
 import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem, Button } from 'native-base';
-// import {
-// 	Button
-// } from 'react-native-elements'
+import {
+	Button
+} from 'react-native-elements'
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 
@@ -47,6 +58,48 @@ var Pickups = {
 	UST: 'U-Store'
 };
 
+class OpenURLButton extends React.Component {
+  static propTypes = {
+    url: React.PropTypes.string,
+  };
+
+  handleClick = () => {
+    Linking.canOpenURL(this.props.url).then(supported => {
+      if (supported) {
+        Linking.openURL(this.props.url);
+      } else {
+        console.log('Don\'t know how to open URI: ' + this.props.url);
+      }
+    });
+  };
+
+  render() {
+    return (
+      <TouchableOpacity
+        onPress={this.handleClick}>
+        <View style={styles.button}>
+          <Text style={styles.text}>Open {this.props.url}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+class IntentAndroidExample extends React.Component {
+  static title = 'Linking';
+  static description = 'Shows how to use Linking to open URLs.';
+
+  render() {
+    return (
+        <OpenURLButton url={'uber://'} />
+
+    );
+  }
+}
+
+
+
+module.exports = IntentAndroidExample;
 class WelcomeScreen extends React.Component {
 	constructor(props) {
 		stripe.init({
@@ -549,7 +602,7 @@ class SearchScreen extends React.Component {
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { })} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>CREATE</Text>
 				</TouchableHighlight>
-				<TouchableHighlight style={styles.button} onPress={() => navigate('Pay', { })} underlayColor='#e2d662'>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('Intent', { })} underlayColor='#e2d662'>
 					<Text style={styles.buttonText}>Pay</Text>
 				</TouchableHighlight>
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Profile', {})} underlayColor='#e2d662'>
@@ -1410,7 +1463,7 @@ const Charter = StackNavigator({
 	OwnDetail: { screen: OwnDetailScreen },
 	JoinDetail: { screen: JoinDetailScreen },
 	Create: { screen: CreateScreen },
-	Pay: { screen: CardFormScreen },
+	Intent: { screen: IntentAndroidExample },
 }, {
       headerMode: 'screen'
 });
