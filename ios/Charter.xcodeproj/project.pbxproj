@@ -74,7 +74,11 @@
 		DA206C1341494D81AFB165CF /* OpenSans-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9A36A70F1E354624B5F54E47 /* OpenSans-ExtraBold.ttf */; };
 		005405C7A4A6466A94EB90BB /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A0CFB5651E6C46729AF62F80 /* OpenSans-Regular.ttf */; };
 		5872B02B83FC4EF7A0223373 /* Jaapokki-subtract.otf in Resources */ = {isa = PBXBuildFile; fileRef = B90394358A97406EAED57582 /* Jaapokki-subtract.otf */; };
+<<<<<<< HEAD
 		C5D2D2AE155347968528D926 /* oregon.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A826C383DCFF492481E27886 /* oregon.ttf */; };
+=======
+		839D9706A09D49F0A76316A0 /* oregon.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDED12393E784FEDAE6AB99C /* oregon.ttf */; };
+>>>>>>> origin/search_update
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -333,7 +337,11 @@
 		9A36A70F1E354624B5F54E47 /* OpenSans-ExtraBold.ttf */ = {isa = PBXFileReference; name = "OpenSans-ExtraBold.ttf"; path = "../assets/OpenSans-ExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		A0CFB5651E6C46729AF62F80 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; name = "OpenSans-Regular.ttf"; path = "../assets/OpenSans-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		B90394358A97406EAED57582 /* Jaapokki-subtract.otf */ = {isa = PBXFileReference; name = "Jaapokki-subtract.otf"; path = "../assets/Jaapokki-subtract.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+<<<<<<< HEAD
 		A826C383DCFF492481E27886 /* oregon.ttf */ = {isa = PBXFileReference; name = "oregon.ttf"; path = "../assets/oregon.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+=======
+		DDED12393E784FEDAE6AB99C /* oregon.ttf */ = {isa = PBXFileReference; name = "oregon.ttf"; path = "../assets/oregon.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+>>>>>>> origin/search_update
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -605,7 +613,11 @@
 				9A36A70F1E354624B5F54E47 /* OpenSans-ExtraBold.ttf */,
 				A0CFB5651E6C46729AF62F80 /* OpenSans-Regular.ttf */,
 				B90394358A97406EAED57582 /* Jaapokki-subtract.otf */,
+<<<<<<< HEAD
 				A826C383DCFF492481E27886 /* oregon.ttf */,
+=======
+				DDED12393E784FEDAE6AB99C /* oregon.ttf */,
+>>>>>>> origin/search_update
 			);
 			name = Resources;
 			path = "";
@@ -1008,7 +1020,11 @@
 				DA206C1341494D81AFB165CF /* OpenSans-ExtraBold.ttf in Resources */,
 				005405C7A4A6466A94EB90BB /* OpenSans-Regular.ttf in Resources */,
 				5872B02B83FC4EF7A0223373 /* Jaapokki-subtract.otf in Resources */,
+<<<<<<< HEAD
 				C5D2D2AE155347968528D926 /* oregon.ttf in Resources */,
+=======
+				839D9706A09D49F0A76316A0 /* oregon.ttf in Resources */,
+>>>>>>> origin/search_update
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

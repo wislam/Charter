@@ -239,9 +239,7 @@ class CompleteScreen extends React.Component {
 				<Content style={{ width: '80%', marginLeft: '9%'}}>
 					<Form>
 						<Item floatingLabel>
-							<Label style={{color:"#black"}}>Name</Label>
 							<Input
-								style={{color:"#black"}}
 								onChangeText={(displayName) => this.setState({displayName})} />
 						</Item>
 					</Form>
@@ -388,7 +386,6 @@ class SearchScreen extends React.Component {
 
 		return (
 			<View style={styles.container}>
-				
 				<NewCharterForm
 					ref="form"
 					type={newCharter}
