@@ -24,7 +24,7 @@ var {
   TouchableOpacity,
 
 } = ReactNative;
-import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem, Button } from 'native-base';
+import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem} from 'native-base';
 import {
 	Button
 } from 'react-native-elements'
@@ -431,7 +431,12 @@ class ProfileScreen extends React.Component {
 		this.getTrips();
 	}
 
-	// TODO MATT time display (same as listscreen)
+	getTime(text) {
+	 	var date = new Date(text);
+	 	var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
+		return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
+	}
+
 	render() {
 		const { navigate } = this.props.navigation;
 
@@ -451,7 +456,7 @@ class ProfileScreen extends React.Component {
 				</View>
 
 				<View style={{flex: 5}}>
-					<Text>Charters Owned:</Text>
+					<Text style={{fontWeight:'bold'}}>Charters Owned:</Text>
 					<List dataArray={this.state.data.list_chartersOwned} renderRow={(item) =>
 						<ListItem button onPress={() => navigate('OwnDetail', { charterId: item.id })}>
 							<Body>
@@ -459,11 +464,12 @@ class ProfileScreen extends React.Component {
 								<Text style={{fontSize:12}} note>{item.owner_name}</Text>
 							</Body>
 							<Right>
-								<Text>Time</Text>
+								<Text style={{fontWeight:'bold'}}>Time</Text>
+								<Text>{this.getTime([item.time])}</Text>
 							</Right>
 						</ListItem>
 					} />
-					<Text>Charters Joined:</Text>
+					<Text style={{fontWeight:'bold'}}>Charters Joined:</Text>
 					<List dataArray={this.state.data.list_chartersJoined} renderRow={(item) =>
 						<ListItem button onPress={() => navigate('JoinDetail', { charterId: item.id })}>
 							<Body>
@@ -471,14 +477,15 @@ class ProfileScreen extends React.Component {
 								<Text style={{fontSize:12}} note>{item.owner_name}</Text>
 							</Body>
 							<Right>
-								<Text>Time</Text>
+								<Text style={{fontWeight:'bold'}}>Time</Text>
+								<Text>{this.getTime([item.time])}</Text>
 							</Right>
 						</ListItem>
 					} />
 				</View>
-				<Button full danger onPress={this.logout}>
-					<Text style={{color:'white'}}>Logout</Text>
-				</Button>
+				<TouchableHighlight style={styles.button} onPress={this.logout}>
+					<Text style={styles.buttonText}>LOGOUT</Text>
+				</TouchableHighlight>
 			</View>
 		);
 	}
@@ -502,8 +509,9 @@ class SearchScreen extends React.Component {
 		      	backgroundColor: '#FCEE6D'
 		    },
 			left: null
-		  }
+		  },
 	};
+
 
 	constructor(props) {
 		super(props);
@@ -576,7 +584,6 @@ class SearchScreen extends React.Component {
 					label: 'When?',
 					config: {
 						format: (date) => {
-							// TODO remove seconds
 							var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
 							return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
 						}
@@ -680,11 +687,11 @@ class ListScreen extends React.Component {
 	}
 
 	// TODO MATT called using {this.getTime(rowData.time)} from render
-	// getTime(text) {
-	// 	date = new Date(text);
-	// 	timeStr = date.toLocaleTimeString();
-	// 	return timeStr.slice() + timeStr.slice(timeStr.length - 2);
-	// }
+	 getTime(text) {
+	 	var date = new Date(text);
+	 	var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
+		return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
+	 }
 
 	render() {
 	// The screen's current route is passed in to `props.navigation.state`:
@@ -708,7 +715,8 @@ class ListScreen extends React.Component {
 						<Text style={{fontSize:12}}>Pickup at {Pickups[rowData.pickup]}</Text>
 					</Body>
 					<Right>
-						<Text note>2:30 AM</Text>
+						<Text note>Time</Text>
+						<Text>{[this.getTime(rowData.time)]}</Text>
 					</Right>
 				</ListItem>}
 		/>
@@ -757,19 +765,25 @@ class OwnDetailScreen extends React.Component {
 				rowHasChanged: (row1, row2) => row1 !== row2,
 			})
 		};
-		ownerUid = "";
+		//ownerUid = "";
 
 		this.componentWillMount = this.componentWillMount.bind(this);
 		this.join = this.join.bind(this);
+		this.markCompleted = this.markCompleted.bind(this);
 	}
 
 	join() {
 		const { params } = this.props.navigation.state;
 
-		console.log(firebase.auth().currentUser.uid);
-		console.log(this.state.ownerUid);
+		alert(firebase.auth().currentUser.uid);
+		alert(this.state.ownerUid);
 
-		if (firebase.auth().currentUser.uid == this.state.ownerUid) {
+		if (firebase.auth().currentUser.uid != this.state.ownerUid) {
+			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
+			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+		}
+
+		else {
 			// TODO Make the component for Join conditional so that it only shows up when owner != currentUser
 			Alert.alert(
 				"You can't join your own trip!",
@@ -780,15 +794,20 @@ class OwnDetailScreen extends React.Component {
 			 )
 		}
 
-		firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
-		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+		
 	}
 
 	markCompleted() {
 		const { params } = this.props.navigation.state;
-
 		firebaseApp.database().ref('charters/' + params.charterId + '/active').set(false);
 	}
+
+	getTime(text) {
+		var date = new Date(text);
+		var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
+		return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
+	}
+	
 
 	componentWillMount() {
 		const { params } = this.props.navigation.state;
@@ -809,7 +828,7 @@ class OwnDetailScreen extends React.Component {
 			this.setState({ ownerName: snapshot.val().name });
 		});
 
-		list_riders = [];
+		var list_riders = [];
 
 		firebase.database().ref('charters/' + params.charterId + '/riders').on('value', (snap) => {
 
@@ -820,8 +839,8 @@ class OwnDetailScreen extends React.Component {
 
 		});
 
-		list_riders_names = [];
-		for (x in list_riders) {
+		var list_riders_names = [];
+		for (var x in list_riders) {
 			console.log(list_riders[x]);
 			firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
 				list_riders_names.push(snap.val().name);
@@ -851,7 +870,7 @@ class OwnDetailScreen extends React.Component {
 
               <ListItem>
 				<Left><Text style={styles.bodyText}>{Destinations[this.state.destination]}</Text></Left>
-				<Left><Text note>{this.state.time}, {Pickups[this.state.pickup]}</Text></Left>
+				<Left><Text note>{this.getTime(this.state.time)}, {Pickups[this.state.pickup]}</Text></Left>
 			 </ListItem>
 
             <ListItem avatar>
@@ -872,9 +891,9 @@ class OwnDetailScreen extends React.Component {
 				</ListItem>} />
 
 			</Content>
-			<Button full onPress={this.markCompleted}>
-				<Text style={{color:'white'}}>Charter Completed</Text>
-			</Button>
+			<TouchableHighlight style={styles.button} onPress={this.markCompleted}>
+				<Text style={styles.buttonText}>Charter Completed</Text>
+			</TouchableHighlight>
 			</Container>
 
 		);
@@ -912,10 +931,11 @@ class JoinDetailScreen extends React.Component {
 				rowHasChanged: (row1, row2) => row1 !== row2,
 			})
 		};
-		ownerUid = "";
+		//ownerUid = "";
 
 		this.componentWillMount = this.componentWillMount.bind(this);
 		this.join = this.join.bind(this);
+		this.leave = this.leave.bind(this);
 	}
 
 	join() {
@@ -924,7 +944,12 @@ class JoinDetailScreen extends React.Component {
 		console.log(firebase.auth().currentUser.uid);
 		console.log(this.state.ownerUid);
 
-		if (firebase.auth().currentUser.uid == this.state.ownerUid) {
+		if (firebase.auth().currentUser.uid != this.state.ownerUid) {
+			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
+			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+		}
+
+		else {
 			// TODO Make the component for Join conditional so that it only shows up when owner != currentUser
 			Alert.alert(
 				"You can't join your own trip!",
@@ -935,8 +960,7 @@ class JoinDetailScreen extends React.Component {
 			 )
 		}
 
-		firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
-		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+		
 	}
 
 	leave() {
@@ -968,7 +992,7 @@ class JoinDetailScreen extends React.Component {
 			this.setState({ ownerName: snapshot.val().name });
 		});
 
-		list_riders = [];
+		var list_riders = [];
 
 		firebase.database().ref('charters/' + params.charterId + '/riders').on('value', (snap) => {
 
@@ -979,8 +1003,8 @@ class JoinDetailScreen extends React.Component {
 
 		});
 
-		list_riders_names = [];
-		for (x in list_riders) {
+		var list_riders_names = [];
+		for (var x in list_riders) {
 			console.log(list_riders[x]);
 			firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
 				list_riders_names.push(snap.val().name);
@@ -1031,9 +1055,9 @@ class JoinDetailScreen extends React.Component {
 				</ListItem>} />
 
 			</Content>
-			<Button full danger onPress={this.leave}>
-				<Text style={{color:'white'}}>Leave Charter</Text>
-			</Button>
+			<TouchableHighlight style={styles.button} onPress={this.leave}>
+				<Text style={styles.buttonText}>LEAVE CHARTER</Text>
+			</TouchableHighlight>
 			</Container>
 
 		);
@@ -1071,7 +1095,7 @@ class DetailScreen extends React.Component {
 				rowHasChanged: (row1, row2) => row1 !== row2,
 			})
 		};
-		ownerUid = "";
+		//ownerUid = "";
 
 		this.componentWillMount = this.componentWillMount.bind(this);
 		this.join = this.join.bind(this);
@@ -1083,7 +1107,12 @@ class DetailScreen extends React.Component {
 		console.log(firebase.auth().currentUser.uid);
 		console.log(this.state.ownerUid);
 
-		if (firebase.auth().currentUser.uid == this.state.ownerUid) {
+		if (firebase.auth().currentUser.uid != this.state.ownerUid) {
+			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
+			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+		}
+
+		else {
 			// TODO Make the component for Join conditional so that it only shows up when owner != currentUser
 			Alert.alert(
 				"You can't join your own trip!",
@@ -1094,8 +1123,7 @@ class DetailScreen extends React.Component {
 			 )
 		}
 
-		firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
-		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+		
 	}
 
 	componentWillMount() {
@@ -1117,7 +1145,7 @@ class DetailScreen extends React.Component {
 			this.setState({ ownerName: snapshot.val().name });
 		});
 
-		list_riders = [];
+		var list_riders = [];
 
 		firebase.database().ref('charters/' + params.charterId + '/riders').on('value', (snap) => {
 
@@ -1128,8 +1156,8 @@ class DetailScreen extends React.Component {
 
 		});
 
-		list_riders_names = [];
-		for (x in list_riders) {
+		var list_riders_names = [];
+		for (var x in list_riders) {
 			console.log(list_riders[x]);
 			firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
 				list_riders_names.push(snap.val().name);
@@ -1382,16 +1410,18 @@ class CreateScreen extends React.Component {
 					label: "Where to?"
 				},
 				time: {
-					label: "When?",
+					label: 'When?',
 					config: {
 						format: (date) => {
-							// TODO remove seconds
-							return String(date.toDateString() + ' ' + date.toLocaleTimeString());
+							var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
+							return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
 						}
 					}
 				}
 			}
 		};
+
+
 
 		return (
 			<View style={styles.container}>
