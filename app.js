@@ -24,10 +24,7 @@ var {
   TouchableOpacity,
 
 } = ReactNative;
-import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem} from 'native-base';
-import {
-	Button
-} from 'react-native-elements'
+import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem, Button} from 'native-base';
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 
@@ -464,7 +461,6 @@ class ProfileScreen extends React.Component {
 								<Text style={{fontSize:12}} note>{item.owner_name}</Text>
 							</Body>
 							<Right>
-								<Text style={{fontWeight:'bold'}}>Time</Text>
 								<Text>{this.getTime([item.time])}</Text>
 							</Right>
 						</ListItem>
@@ -477,7 +473,6 @@ class ProfileScreen extends React.Component {
 								<Text style={{fontSize:12}} note>{item.owner_name}</Text>
 							</Body>
 							<Right>
-								<Text style={{fontWeight:'bold'}}>Time</Text>
 								<Text>{this.getTime([item.time])}</Text>
 							</Right>
 						</ListItem>
@@ -646,7 +641,6 @@ class ListScreen extends React.Component {
 				list_charters: []
 			}
 		};
-		// this.getTime = this.getTime.bind(this);
 
 	}
 
@@ -666,12 +660,13 @@ class ListScreen extends React.Component {
 					&& (qstart.getMonth() == t.getMonth()) && (qstart.getYear() == t.getYear()))
 					charters.push(child.val());
 			});
-			if (charters.length == 0) {
-				Alert.alert('We could not find any charters for you. Maybe you should create one!', null, [
-					{text: 'Create New Charter', onPress: () => navigate('Create', {})},
-					{text: 'Start Over', onPress: () => navigate('Search', {})}
-				]);
-			}
+			//
+			// if (charters.length == 0) {
+			// 	Alert.alert('We could not find any charters for you. Maybe you should create one!', null, [
+			// 		{text: 'Create New Charter', onPress: () => navigate('Create', {})},
+			// 		{text: 'Start Over', onPress: () => navigate('Search', {})}
+			// 	]);
+			// }
 
 			this.setState({
 				data: {
@@ -686,11 +681,11 @@ class ListScreen extends React.Component {
 		this.listenForCharters(chartersRef);
 	}
 
-	 getTime(text) {
-	 	var date = new Date(text);
-	 	var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
+	getTime(text) {
+		var date = new Date(text);
+		var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
 		return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
-	 }
+	}
 
 	render() {
 	// The screen's current route is passed in to `props.navigation.state`:
@@ -714,7 +709,6 @@ class ListScreen extends React.Component {
 						<Text style={{fontSize:12}}>Pickup at {Pickups[rowData.pickup]}</Text>
 					</Body>
 					<Right>
-						<Text note>Time</Text>
 						<Text>{[this.getTime(rowData.time)]}</Text>
 					</Right>
 				</ListItem>}
@@ -801,6 +795,7 @@ class OwnDetailScreen extends React.Component {
 		firebaseApp.database().ref('charters/' + params.charterId + '/active').set(false);
 	}
 
+	// TODO Just time required here
 	getTime(text) {
 		var date = new Date(text);
 		var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
@@ -976,7 +971,7 @@ class JoinDetailScreen extends React.Component {
 
 		Alert.alert(
 			"Are you sure you want to leave this Charter?",
-			null,
+			'You will forfeit your deposit.',
 			[
 				{text: 'Yes', onPress: this.leavelogic},
 				{text: 'No', onPress: () => console.log('NO')}
@@ -1122,6 +1117,20 @@ class DetailScreen extends React.Component {
 		if (firebase.auth().currentUser.uid != this.state.ownerUid) {
 			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
 			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+			var destination = this.state.destination;
+			Alert.alert(
+				"Congratulations! You're " + destination + " bound.",
+				null,
+				[
+					{text: 'OK', onPress: () => console.log('OK')},
+				]
+			);
+			setTimeout(() => {
+	            this.setState(() => {
+	                console.log('setting state');
+	                return { unseen: "does not display" }
+	            });
+	        }, 2000);
 		}
 
 		else {
@@ -1133,11 +1142,6 @@ class DetailScreen extends React.Component {
 				  {text: 'OK', onPress: () => console.log('OK')},
 				]
 			 )
-		}
-
-		else {
-			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
-			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
 		}
 	}
 
