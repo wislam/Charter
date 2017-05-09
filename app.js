@@ -80,7 +80,8 @@ class WelcomeScreen extends React.Component {
 		    },
 		    tintColor: {
 		      	backgroundColor: '#FCEE6D'
-		    }
+		    },
+			left: null
 		  }
 	};
 
@@ -91,8 +92,6 @@ class WelcomeScreen extends React.Component {
 			await firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password);
 
 			console.log("Account created with " + this.state.email);
-
-			let newUid = firebase.a
 
 			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid).set({
 				email: this.state.email
@@ -277,7 +276,6 @@ class ProfileScreen extends React.Component {
 		     	backgroundColor: '#00FFCC'
 		    },
 		    tintColor: 'black',
-		    left: null
 		}
 
 	};
@@ -288,7 +286,11 @@ class ProfileScreen extends React.Component {
 		this.getName = this.getName.bind(this);
 		this.state = {
 			name: '',
-			uid: ''
+			uid: '',
+			data: {
+				list_chartersOwned: [],
+				list_chartersJoined: []
+			},
 		};
 	}
 
@@ -319,6 +321,47 @@ class ProfileScreen extends React.Component {
 
 	}
 
+	getTrips() {
+		var chartersRef = firebase.database().ref('charters/');
+
+		var chartersOwnedRef = firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-owned');
+
+		var chartersOwned = [];
+		var chartersJoined = [];
+
+		chartersOwnedRef.on('value', (snap) => {
+			snap.forEach((child) => {
+				chartersRef.on('value', (innersnap) => {
+					innersnap.forEach((innerchild) => {
+						if (child.key == innerchild.key) chartersOwned.push(innerchild.val());
+					})
+				});
+			});
+		});
+
+		var chartersJoinedRef = firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined');
+
+		chartersJoinedRef.on('value', (snap) => {
+			// get children as an array
+			snap.forEach((child) => {
+				chartersRef.on('value', (innersnap) => {
+					innersnap.forEach((innerchild) => {
+						if (child.key == innerchild.key) chartersJoined.push(innerchild.val());
+					})
+				});
+			});
+		});
+
+		console.log(chartersJoined);
+
+		this.setState({
+			data: {
+				list_chartersOwned: chartersOwned,
+				list_chartersJoined: chartersJoined
+			}
+		});
+	}
+
 	getName() {
 		var currentUid = firebase.auth().currentUser.uid;
 		this.setState({
@@ -328,14 +371,17 @@ class ProfileScreen extends React.Component {
 		userRef.on('value', (snapshot) => {
 			this.setState({ name: snapshot.val().name });
 		});
-
 	}
 
-	componentDidMount() {
+	componentWillMount() {
 		this.getName();
+		this.getTrips();
 	}
 
+	// TODO MATT time display (same as listscreen)
 	render() {
+		const { navigate } = this.props.navigation;
+
 		return (
 			<View style={{
 				justifyContent: 'center',
@@ -350,15 +396,32 @@ class ProfileScreen extends React.Component {
 						<Text style={styles.welcome}>{this.state.name}</Text>
 					</View>
 				</View>
+
 				<View style={{flex: 5}}>
-					<List>
-						<ListItem>
-							<Text>My Charters</Text>
+					<Text>Charters Owned:</Text>
+					<List dataArray={this.state.data.list_chartersOwned} renderRow={(item) =>
+						<ListItem button onPress={() => navigate('OwnDetail', { charterId: item.id })}>
+							<Body>
+								<Text style={{fontSize:18}}>{Destinations[item.destination]}</Text>
+								<Text style={{fontSize:12}} note>{item.owner_name}</Text>
+							</Body>
+							<Right>
+								<Text>Time</Text>
+							</Right>
 						</ListItem>
-						<ListItem>
-							<Text>Joined Charters</Text>
+					} />
+					<Text>Charters Joined:</Text>
+					<List dataArray={this.state.data.list_chartersJoined} renderRow={(item) =>
+						<ListItem button onPress={() => navigate('JoinDetail', { charterId: item.id })}>
+							<Body>
+								<Text style={{fontSize:18}}>{Destinations[item.destination]}</Text>
+								<Text style={{fontSize:12}} note>{item.owner_name}</Text>
+							</Body>
+							<Right>
+								<Text>Time</Text>
+							</Right>
 						</ListItem>
-					</List>
+					} />
 				</View>
 				<Button full danger onPress={this.logout}>
 					<Text style={{color:'white'}}>Logout</Text>
@@ -371,7 +434,7 @@ class ProfileScreen extends React.Component {
 class SearchScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `SEARCH`,
+		title: ({ state }) => 'Search',
 		header: {
 		    titleStyle: {
 		     	color: 'black',
@@ -384,7 +447,8 @@ class SearchScreen extends React.Component {
 		    },
 		    tintColor: {
 		      	backgroundColor: '#FCEE6D'
-		    }
+		    },
+			left: null
 		  }
 	};
 
@@ -513,39 +577,46 @@ class ListScreen extends React.Component {
 		    },
 		    tintColor: 'black',
 		}
-		//for ${state.params.user}
 	};
 
 	constructor(props) {
 		super(props);
 		this.state = {
-			dataSource: new ListView.DataSource({
-				rowHasChanged: (row1, row2) => row1 !== row2,
-			})
+			data: {
+				list_charters: []
+			}
 		};
+		// this.getTime = this.getTime.bind(this);
 
 	}
 
 	listenForCharters(chartersRef) {
+		const { navigate } = this.props.navigation;
 
-		
 		var d = this.props.navigation.state.params.dest;
 		var t = this.props.navigation.state.params.time;
 
 		chartersRef.on('value', (snap) => {
 
 			// get children as an array
-			var list_charters = [];
+			var charters = [];
 			snap.forEach((child) => {
 				var qstart = new Date(child.val().time);
-				if ((child.val().destination == d) && (qstart.getDate() == t.getDate()) 
+				if ((child.val().destination == d) && (qstart.getDate() == t.getDate())
 					&& (qstart.getMonth() == t.getMonth()) && (qstart.getYear() == t.getYear()))
-					list_charters.push(child.val());
+					charters.push(child.val());
 			});
-			// console.log(list_charters);
+			if (charters.length == 0) {
+				Alert.alert('We could not find any charters for you. Maybe you should create one!', null, [
+					{text: 'Create New Charter', onPress: () => navigate('Create', {})},
+					{text: 'Start Over', onPress: () => navigate('Search', {})}
+				]);
+			}
 
 			this.setState({
-				dataSource: this.state.dataSource.cloneWithRows(list_charters)
+				data: {
+					list_charters: charters
+				}
 			});
 
 		});
@@ -554,6 +625,13 @@ class ListScreen extends React.Component {
 	componentDidMount() {
 		this.listenForCharters(chartersRef);
 	}
+
+	// TODO MATT called using {this.getTime(rowData.time)} from render
+	// getTime(text) {
+	// 	date = new Date(text);
+	// 	timeStr = date.toLocaleTimeString();
+	// 	return timeStr.slice() + timeStr.slice(timeStr.length - 2);
+	// }
 
 	render() {
 	// The screen's current route is passed in to `props.navigation.state`:
@@ -565,25 +643,348 @@ class ListScreen extends React.Component {
 		<Content style={{ marginTop: '7.5%' }} >
 		<Grid>
 		<Row>
-		<ListView
-			dataSource={this.state.dataSource}
+		<List
+			dataArray={this.state.data.list_charters}
 			renderRow={(rowData) =>
-				<TouchableHighlight style={styles.button} onPress={() => navigate('Detail', { charterId: rowData.id })} underlayColor='#00FFCC'>
-					<Text style={styles.buttonText}>{Destinations[rowData.destination]}</Text>
-				</TouchableHighlight>}
+				<ListItem avatar button onPress={() => navigate('Detail', { charterId: rowData.id })}>
+					<Left>
+						<Thumbnail source={require('./two.jpg')} />
+					</Left>
+					<Body>
+						<Text style={{fontSize:18}}>{rowData.owner_name}</Text>
+						<Text style={{fontSize:12}}>Pickup at {Pickups[rowData.pickup]}</Text>
+					</Body>
+					<Right>
+						<Text note>2:30 AM</Text>
+					</Right>
+				</ListItem>}
 		/>
 
 		</Row>
 		</Grid>
 
 		</Content>
-		<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { user: 'Christopher Eisgruber' })} underlayColor='#00FFCC'>
+		<TouchableHighlight style={styles.button} onPress={() => navigate('Create', {})} underlayColor='#00FFCC'>
 				<Text style={styles.buttonText}>CREATE NEW RIDE</Text>
 		</TouchableHighlight>
 		</Container>
 	);
 }
 
+}
+
+class OwnDetailScreen extends React.Component {
+	static navigationOptions = {
+		// Nav options can be defined as a function of the navigation prop:
+		title: ({ state }) => `Ride Details`,
+		header: {
+		    titleStyle: {
+		     	color: 'black',
+		     	letterSpacing: 2,
+			fontFamily: "oregon",
+		     	fontWeight: '500'
+		    },
+		    style: {
+		     	backgroundColor: '#00FFCC'
+		    },
+		    tintColor: 'black',
+		}
+	};
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			destination: "",
+			ownerUid: "",
+			pickup: "",
+			time: "",
+			timeline: [],
+			ownerName: "",
+			riders: new ListView.DataSource({
+				rowHasChanged: (row1, row2) => row1 !== row2,
+			})
+		};
+		ownerUid = "";
+
+		this.componentWillMount = this.componentWillMount.bind(this);
+		this.join = this.join.bind(this);
+	}
+
+	join() {
+		const { params } = this.props.navigation.state;
+
+		console.log(firebase.auth().currentUser.uid);
+		console.log(this.state.ownerUid);
+
+		if (firebase.auth().currentUser.uid == this.state.ownerUid) {
+			// TODO Make the component for Join conditional so that it only shows up when owner != currentUser
+			Alert.alert(
+				"You can't join your own trip!",
+				null,
+				[
+				  {text: 'OK', onPress: () => console.log('OK')},
+				]
+			 )
+		}
+
+		firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
+		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+	}
+
+	markCompleted() {
+		const { params } = this.props.navigation.state;
+
+		firebaseApp.database().ref('charters/' + params.charterId + '/active').set(false);
+	}
+
+	componentWillMount() {
+		const { params } = this.props.navigation.state;
+
+		var currentCharterRef = firebase.database().ref('charters/' + params.charterId);
+		currentCharterRef.on('value', (snapshot) => {
+			this.ownerUid = snapshot.val().owner;
+			this.setState({
+				destination: snapshot.val().destination,
+			 	ownerUid: snapshot.val().owner,
+				pickup: snapshot.val().pickup,
+				time: snapshot.val().time,
+			});
+		});
+
+		var ownerRef = firebase.database().ref('users/' + this.ownerUid);
+		ownerRef.on('value', (snapshot) => {
+			this.setState({ ownerName: snapshot.val().name });
+		});
+
+		list_riders = [];
+
+		firebase.database().ref('charters/' + params.charterId + '/riders').on('value', (snap) => {
+
+			// get children as an array
+			snap.forEach((child) => {
+				list_riders.push(child.key);
+			});
+
+		});
+
+		list_riders_names = [];
+		for (x in list_riders) {
+			console.log(list_riders[x]);
+			firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
+				list_riders_names.push(snap.val().name);
+			});
+		}
+
+		console.log(list_riders_names);
+
+		this.setState({
+			riders: this.state.riders.cloneWithRows(list_riders_names)
+		});
+	}
+
+	render() {
+		// The screen's current route is passed in to `props.navigation.state`:
+		const { params } = this.props.navigation.state;
+		const { navigate } = this.props.navigation;
+
+		return (
+			<Container backgroundColor='white'>
+			<Content>
+
+			<View>
+			<Image  style={{width: 420, height: 220, flex: 1, justifyContent: 'center', alignItems: 'center'}}
+              	source={require('./nyc.jpg')}
+              />
+
+              <ListItem>
+				<Left><Text style={styles.bodyText}>{Destinations[this.state.destination]}</Text></Left>
+				<Left><Text note>{this.state.time}, {Pickups[this.state.pickup]}</Text></Left>
+			 </ListItem>
+
+            <ListItem avatar>
+		       <Left><Thumbnail source={require('./one.jpg')} /></Left>
+		    	<Body>
+		    		<Text style={{fontWeight: 'bold', fontSize: 15}}>{this.state.ownerName}</Text>
+		    	</Body>
+		    </ListItem>
+
+			<Text style={styles.bodyText}>Current Riders:</Text>
+
+			</View>
+
+			<ListView dataSource={this.state.riders} renderRow={(rowData) =>
+				<ListItem avatar>
+					<Left><Thumbnail source={require('./two.jpg')} /></Left>
+					<Body><Text>{rowData}</Text></Body>
+				</ListItem>} />
+
+			</Content>
+			<Button full onPress={this.markCompleted}>
+				<Text style={{color:'white'}}>Charter Completed</Text>
+			</Button>
+			</Container>
+
+		);
+	}
+}
+
+class JoinDetailScreen extends React.Component {
+	static navigationOptions = {
+		// Nav options can be defined as a function of the navigation prop:
+		title: ({ state }) => `Ride Details`,
+		header: {
+		    titleStyle: {
+		     	color: 'black',
+		     	letterSpacing: 2,
+			fontFamily: "oregon",
+		     	fontWeight: '500'
+		    },
+		    style: {
+		     	backgroundColor: '#00FFCC'
+		    },
+		    tintColor: 'black',
+		}
+	};
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			destination: "",
+			ownerUid: "",
+			pickup: "",
+			time: "",
+			timeline: [],
+			ownerName: "",
+			riders: new ListView.DataSource({
+				rowHasChanged: (row1, row2) => row1 !== row2,
+			})
+		};
+		ownerUid = "";
+
+		this.componentWillMount = this.componentWillMount.bind(this);
+		this.join = this.join.bind(this);
+	}
+
+	join() {
+		const { params } = this.props.navigation.state;
+
+		console.log(firebase.auth().currentUser.uid);
+		console.log(this.state.ownerUid);
+
+		if (firebase.auth().currentUser.uid == this.state.ownerUid) {
+			// TODO Make the component for Join conditional so that it only shows up when owner != currentUser
+			Alert.alert(
+				"You can't join your own trip!",
+				null,
+				[
+				  {text: 'OK', onPress: () => console.log('OK')},
+				]
+			 )
+		}
+
+		firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
+		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+	}
+
+	leave() {
+		const { params } = this.props.navigation.state;
+
+		// TODO set up alert
+
+		firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).remove();
+		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).remove();
+
+	}
+
+	componentWillMount() {
+		const { params } = this.props.navigation.state;
+
+		var currentCharterRef = firebase.database().ref('charters/' + params.charterId);
+		currentCharterRef.on('value', (snapshot) => {
+			this.ownerUid = snapshot.val().owner;
+			this.setState({
+				destination: snapshot.val().destination,
+			 	ownerUid: snapshot.val().owner,
+				pickup: snapshot.val().pickup,
+				time: snapshot.val().time,
+			});
+		});
+
+		var ownerRef = firebase.database().ref('users/' + this.ownerUid);
+		ownerRef.on('value', (snapshot) => {
+			this.setState({ ownerName: snapshot.val().name });
+		});
+
+		list_riders = [];
+
+		firebase.database().ref('charters/' + params.charterId + '/riders').on('value', (snap) => {
+
+			// get children as an array
+			snap.forEach((child) => {
+				list_riders.push(child.key);
+			});
+
+		});
+
+		list_riders_names = [];
+		for (x in list_riders) {
+			console.log(list_riders[x]);
+			firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
+				list_riders_names.push(snap.val().name);
+			});
+		}
+
+		console.log(list_riders_names);
+
+		this.setState({
+			riders: this.state.riders.cloneWithRows(list_riders_names)
+		});
+	}
+
+	render() {
+		// The screen's current route is passed in to `props.navigation.state`:
+		const { params } = this.props.navigation.state;
+		const { navigate } = this.props.navigation;
+
+		return (
+			<Container backgroundColor='white'>
+			<Content>
+
+			<View>
+			<Image  style={{width: 420, height: 220, flex: 1, justifyContent: 'center', alignItems: 'center'}}
+              	source={require('./nyc.jpg')}
+              />
+
+              <ListItem>
+				<Left><Text style={styles.bodyText}>{Destinations[this.state.destination]}</Text></Left>
+				<Left><Text note>{this.state.time}, {Pickups[this.state.pickup]}</Text></Left>
+			 </ListItem>
+
+            <ListItem avatar>
+		       <Left><Thumbnail source={require('./one.jpg')} /></Left>
+		    	<Body>
+		    		<Text style={{fontWeight: 'bold', fontSize: 15}}>{this.state.ownerName}</Text>
+		    	</Body>
+		    </ListItem>
+
+			<Text style={styles.bodyText}>Current Riders:</Text>
+
+			</View>
+
+			<ListView dataSource={this.state.riders} renderRow={(rowData) =>
+				<ListItem avatar>
+					<Left><Thumbnail source={require('./two.jpg')} /></Left>
+					<Body><Text>{rowData}</Text></Body>
+				</ListItem>} />
+
+			</Content>
+			<Button full danger onPress={this.leave}>
+				<Text style={{color:'white'}}>Leave Charter</Text>
+			</Button>
+			</Container>
+
+		);
+	}
 }
 
 class DetailScreen extends React.Component {
@@ -735,6 +1136,7 @@ class DetailScreen extends React.Component {
 		);
 	}
 }
+
 export default class CardFormScreen extends React.Component {
 	  state = {
 	    loading: false,
@@ -882,8 +1284,10 @@ class CreateScreen extends React.Component {
 
 		var newCharterData = {
 			id: newCharterKey,
+			active: true,
 			destination: value.destination,
 			owner: firebase.auth().currentUser.uid,
+			owner_name: firebase.auth().currentUser.displayName,
 			pickup: value.pickup,
 			time: value.time.toString(),
 			timeline: { m1: 'Welcome to your new Charter! Use this timeline to post any updates.' }
@@ -1003,6 +1407,8 @@ const Charter = StackNavigator({
 	List:   { screen: ListScreen   },
 	Search: { screen: SearchScreen },
 	Detail: { screen: DetailScreen },
+	OwnDetail: { screen: OwnDetailScreen },
+	JoinDetail: { screen: JoinDetailScreen },
 	Create: { screen: CreateScreen },
 	Pay: { screen: CardFormScreen },
 }, {
