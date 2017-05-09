@@ -686,7 +686,6 @@ class ListScreen extends React.Component {
 		this.listenForCharters(chartersRef);
 	}
 
-	// TODO MATT called using {this.getTime(rowData.time)} from render
 	 getTime(text) {
 	 	var date = new Date(text);
 	 	var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
@@ -936,6 +935,7 @@ class JoinDetailScreen extends React.Component {
 		this.componentWillMount = this.componentWillMount.bind(this);
 		this.join = this.join.bind(this);
 		this.leave = this.leave.bind(this);
+		this.leavelogic = this.leavelogic.bind(this);
 	}
 
 	join() {
@@ -963,13 +963,25 @@ class JoinDetailScreen extends React.Component {
 		
 	}
 
+	leavelogic() {
+		const { params } = this.props.navigation.state;
+		const { navigate } = this.props.navigation;
+		firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).remove();
+		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).remove(); 
+		navigate('Profile', {});
+	}
+
 	leave() {
 		const { params } = this.props.navigation.state;
 
-		// TODO set up alert
-
-		firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).remove();
-		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).remove();
+		Alert.alert(
+			"Are you sure you want to leave this Charter?",
+			null,
+			[
+				{text: 'Yes', onPress: this.leavelogic},
+				{text: 'No', onPress: () => console.log('NO')}
+			])
+		
 
 	}
 
