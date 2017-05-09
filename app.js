@@ -206,18 +206,17 @@ class CompleteScreen extends React.Component {
 		// Nav options can be defined as a function of the navigation prop:
 		title: ({ state }) => ` `,
 		header: {
-				titleStyle: {
-					color: '#307d8e',
-					letterSpacing: 2,
-					fontWeight: '500'
-				},
-				style: {
-					backgroundColor: '#00FFCC'
-				},
-				tintColor: {
-						backgroundColor: '#FCEE6D'
-				}
-			}
+		    titleStyle: {
+		     	color: 'black',
+		     	letterSpacing: 2,
+			fontFamily: "oregon",
+		     	fontWeight: '500'
+		    },
+		    style: {
+		     	backgroundColor: '#00FFCC'
+		    },
+		    tintColor: 'black',
+		}
 	};
 
 	updateInfo() {
@@ -277,10 +276,10 @@ class ProfileScreen extends React.Component {
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: {
-		      	backgroundColor: '#FCEE6D'
-		    }
-		  }
+		    tintColor: 'black',
+		    left: null
+		}
+
 	};
 
 	constructor(props) {
@@ -425,18 +424,13 @@ class SearchScreen extends React.Component {
 
 	onPress() {
 		var value = this.refs.form.getValue();
-		var start = new Date(value.time);
-		chartersRef.orderByChild("destination").equalTo(value.destination).on("value", function(snap) {
-			snap.forEach(function(childSnap) {
-				var childData = childSnap.val();
-
-				var qstart = new Date(childData.time);
-				if ((Math.abs(start - qstart) / 60000) < 30) {
-					// DO SOMETHING HERE
-				}
-			});
-		});
-
+		if (value != null) {
+			var start = new Date(value.time);
+			this.props.navigation.navigate('List', { dest: value.destination, time: start});
+		}
+		else {
+			alert("Please complete the required form items.")
+		}
 	}
 
 	render() {
@@ -485,7 +479,7 @@ class SearchScreen extends React.Component {
 					options={options}
 				/>
 
-				<TouchableHighlight style={styles.button} onPress={() => navigate('List', { })} underlayColor='#00FFCC'>
+				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>SEARCH</Text>
 				</TouchableHighlight>
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { })} underlayColor='#00FFCC'>
@@ -509,18 +503,16 @@ class ListScreen extends React.Component {
 		title: ({ state }) => `Available Charters`,
 		header: {
 		    titleStyle: {
-		     	letterSpacing: 2,
-		     	fontWeight: '500',
-		     	fontFamily: "oregon",
 		     	color: 'black',
+		     	letterSpacing: 2,
+			fontFamily: "oregon",
+		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: {
-		      	backgroundColor: '#FCEE6D'
-		    }
-		  }
+		    tintColor: 'black',
+		}
 		//for ${state.params.user}
 	};
 
@@ -535,12 +527,20 @@ class ListScreen extends React.Component {
 	}
 
 	listenForCharters(chartersRef) {
+
+		
+		var d = this.props.navigation.state.params.dest;
+		var t = this.props.navigation.state.params.time;
+
 		chartersRef.on('value', (snap) => {
 
 			// get children as an array
 			var list_charters = [];
 			snap.forEach((child) => {
-				list_charters.push(child.val());
+				var qstart = new Date(child.val().time);
+				if ((child.val().destination == d) && (qstart.getDate() == t.getDate()) 
+					&& (qstart.getMonth() == t.getMonth()) && (qstart.getYear() == t.getYear()))
+					list_charters.push(child.val());
 			});
 			// console.log(list_charters);
 
@@ -592,18 +592,16 @@ class DetailScreen extends React.Component {
 		title: ({ state }) => `Ride Details`,
 		header: {
 		    titleStyle: {
-		     	letterSpacing: 2,
-		     	fontWeight: '500',
-		     	fontFamily: "oregon",
 		     	color: 'black',
+		     	letterSpacing: 2,
+			fontFamily: "oregon",
+		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: {
-		      	backgroundColor: '#FCEE6D'
-		    }
-		  }
+		    tintColor: 'black',
+		}
 	};
 
 	constructor(props) {
@@ -865,18 +863,16 @@ class CreateScreen extends React.Component {
 		title: ({ state }) => "CREATE A RIDE",
 		header: {
 		    titleStyle: {
-		     	letterSpacing: 2,
-		     	fontWeight: '500',
-		     	fontFamily: "oregon",
 		     	color: 'black',
+		     	letterSpacing: 2,
+			fontFamily: "oregon",
+		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: {
-		      	backgroundColor: '#FCEE6D'
-		    }
-		  }
+		    tintColor: 'black',
+		}
 	};
 
 	onPress() {
@@ -962,7 +958,6 @@ const styles = StyleSheet.create({
 		padding: 20,
 		backgroundColor: 'white',
 		flex: 1,
-		color: 'black',
 	},
 	title: {
 		fontSize: 40,
