@@ -793,7 +793,7 @@ class OwnDetailScreen extends React.Component {
 			 )
 		}
 
-		
+
 	}
 
 	markCompleted() {
@@ -806,7 +806,7 @@ class OwnDetailScreen extends React.Component {
 		var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
 		return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
 	}
-	
+
 
 	componentWillMount() {
 		const { params } = this.props.navigation.state;
@@ -960,14 +960,14 @@ class JoinDetailScreen extends React.Component {
 			 )
 		}
 
-		
+
 	}
 
 	leavelogic() {
 		const { params } = this.props.navigation.state;
 		const { navigate } = this.props.navigation;
 		firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).remove();
-		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).remove(); 
+		firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).remove();
 		navigate('Profile', {});
 	}
 
@@ -981,7 +981,7 @@ class JoinDetailScreen extends React.Component {
 				{text: 'Yes', onPress: this.leavelogic},
 				{text: 'No', onPress: () => console.log('NO')}
 			])
-		
+
 
 	}
 
@@ -1103,9 +1103,9 @@ class DetailScreen extends React.Component {
 			time: "",
 			timeline: [],
 			ownerName: "",
-			riders: new ListView.DataSource({
-				rowHasChanged: (row1, row2) => row1 !== row2,
-			})
+			data: {
+				riders: []
+			}
 		};
 		//ownerUid = "";
 
@@ -1135,7 +1135,10 @@ class DetailScreen extends React.Component {
 			 )
 		}
 
-		
+		else {
+			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
+			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
+		}
 	}
 
 	componentWillMount() {
@@ -1179,11 +1182,26 @@ class DetailScreen extends React.Component {
 		console.log(list_riders_names);
 
 		this.setState({
-			riders: this.state.riders.cloneWithRows(list_riders_names)
+			data: {
+				riders: list_riders_names
+			}
 		});
+
+		// this.forceUpdate();
 	}
 
+	componentDidMount() {
+        setTimeout(() => {
+            this.setState(() => {
+                console.log('setting state');
+                return { unseen: "does not display" }
+            });
+        }, 2000);
+    }
+
 	render() {
+		console.log('data = ');
+		console.log(this.state.data.riders);
 		// The screen's current route is passed in to `props.navigation.state`:
 		const { params } = this.props.navigation.state;
 		const { navigate } = this.props.navigation;
@@ -1213,16 +1231,16 @@ class DetailScreen extends React.Component {
 
 			</View>
 
-			<ListView dataSource={this.state.riders} renderRow={(rowData) =>
+			<List dataArray={this.state.data.riders} renderRow={(rowData) =>
 				<ListItem avatar>
 					<Left><Thumbnail source={require('./two.jpg')} /></Left>
 					<Body><Text>{rowData}</Text></Body>
 				</ListItem>} />
 
 			</Content>
-			<TouchableHighlight style={styles.button} onPress={this.join} underlayColor='#00FFCC'>
-					<Text style={styles.buttonText}>JOIN RIDE</Text>
-			</TouchableHighlight>
+			<Button full onPress={this.join}>
+					<Text style={{color:'white'}}>Join Ride</Text>
+			</Button>
 			</Container>
 
 
