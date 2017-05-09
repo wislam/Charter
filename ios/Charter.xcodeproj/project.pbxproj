@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		005405C7A4A6466A94EB90BB /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A0CFB5651E6C46729AF62F80 /* OpenSans-Regular.ttf */; };
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
