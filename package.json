@@ -14,7 +14,8 @@
     "react-native-elements": "^0.10.3",
     "react-navigation": "^1.0.0-beta.7",
     "react-timer-mixin": "^0.13.3",
-    "tcomb-form-native": "^0.6.7"
+    "tcomb-form-native": "^0.6.7",
+    "tipsi-stripe": "^2.2.1"
   },
   "devDependencies": {
     "babel-jest": "19.0.0",
@@ -26,6 +27,8 @@
     "preset": "react-native"
   },
   "rnpm": {
-   "assets": ["./assets"]
+    "assets": [
+      "./assets"
+    ]
   }
 }

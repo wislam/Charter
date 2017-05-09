@@ -1,0 +1,5 @@
+
+target 'Charter' do
+pod 'Stripe', '~> 9.2.0'
+inherit! :search_paths
+end

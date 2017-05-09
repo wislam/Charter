@@ -1,4 +1,5 @@
 import React from 'react';
+import stripe from 'tipsi-stripe'
 import {
 	AppRegistry,
 	Text,
@@ -9,12 +10,13 @@ import {
 	ListView,
 	Platform,
 	Alert,
-	Image
+	Image,
+	Switch
 } from 'react-native';
-import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem } from 'native-base';
-import {
-	Button
-} from 'react-native-elements'
+import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem, Button } from 'native-base';
+// import {
+// 	Button
+// } from 'react-native-elements'
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 
@@ -47,6 +49,11 @@ var Pickups = {
 
 class WelcomeScreen extends React.Component {
 	constructor(props) {
+		stripe.init({
+	  		publishableKey: 'pk_test_1EEnYhGwfy50KhTeVRMkEbDH',
+	  		merchantId: 'MERCHANT_ID', // Optional
+		});
+
 		super(props);
 
 		this.state = {
@@ -255,10 +262,10 @@ class CompleteScreen extends React.Component {
 
 }
 
-class SearchScreen extends React.Component {
+class ProfileScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `SEARCH`,
+		title: ({ state }) => 'Profile',
 		header: {
 		    titleStyle: {
 		     	color: 'black',
@@ -277,18 +284,12 @@ class SearchScreen extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {
-			dataSource: new ListView.DataSource({
-				rowHasChanged: (row1, row2) => row1 !== row2,
-			}),
-			textInputValue: ''
-		};
-
 		this.logout = this.logout.bind(this);
-	}
-
-	getRef() {
-		return firebaseApp.database().ref();
+		this.getName = this.getName.bind(this);
+		this.state = {
+			name: '',
+			uid: ''
+		};
 	}
 
 	async logout() {
@@ -316,6 +317,89 @@ class SearchScreen extends React.Component {
 			console.log(error.toString())
 		}
 
+	}
+
+	getName() {
+		var currentUid = firebase.auth().currentUser.uid;
+		this.setState({
+			uid: currentUid,
+		 });
+		var userRef = firebase.database().ref('users/' + currentUid);
+		userRef.on('value', (snapshot) => {
+			this.setState({ name: snapshot.val().name });
+		});
+
+	}
+
+	componentDidMount() {
+		this.getName();
+	}
+
+	render() {
+		return (
+			<View style={{
+				justifyContent: 'center',
+				backgroundColor: 'white',
+				flex: 1,
+			}}>
+				<View style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20}}>
+					<View>
+					<Thumbnail source={require('./two.jpg')} />
+					</View>
+					<View style={{paddingTop: 2}}>
+						<Text style={styles.welcome}>{this.state.name}</Text>
+					</View>
+				</View>
+				<View style={{flex: 5}}>
+					<List>
+						<ListItem>
+							<Text>My Charters</Text>
+						</ListItem>
+						<ListItem>
+							<Text>Joined Charters</Text>
+						</ListItem>
+					</List>
+				</View>
+				<Button full danger onPress={this.logout}>
+					<Text style={{color:'white'}}>Logout</Text>
+				</Button>
+			</View>
+		);
+	}
+}
+
+class SearchScreen extends React.Component {
+	static navigationOptions = {
+		// Nav options can be defined as a function of the navigation prop:
+		title: ({ state }) => `SEARCH`,
+		header: {
+		    titleStyle: {
+		     	color: 'black',
+		     	letterSpacing: 2,
+			fontFamily: "oregon",
+		     	fontWeight: '500'
+		    },
+		    style: {
+		     	backgroundColor: '#00FFCC'
+		    },
+		    tintColor: {
+		      	backgroundColor: '#FCEE6D'
+		    }
+		  }
+	};
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			dataSource: new ListView.DataSource({
+				rowHasChanged: (row1, row2) => row1 !== row2,
+			}),
+			textInputValue: ''
+		};
+	}
+
+	getRef() {
+		return firebaseApp.database().ref();
 	}
 
 	listenForCharters(chartersRef) {
@@ -401,8 +485,12 @@ class SearchScreen extends React.Component {
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { })} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>CREATE</Text>
 				</TouchableHighlight>
-				<TouchableHighlight style={styles.button} onPress={this.logout} underlayColor='#e2d662'>
-					<Text style={styles.buttonText}>LOG OUT</Text>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('Pay', { })} underlayColor='#e2d662'>
+					<Text style={styles.buttonText}>Pay</Text>
+				</TouchableHighlight>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('Profile', {})} underlayColor='#e2d662'>
+					<Text style={styles.buttonText}>Profile</Text>
+
 				</TouchableHighlight>
 			</View>
 		);
@@ -607,7 +695,7 @@ class DetailScreen extends React.Component {
 		const { navigate } = this.props.navigation;
 
 		return (
-			<Container backgroundColor='#EFF0F0'>
+			<Container backgroundColor='white'>
 			<Content>
 
 			<View>
@@ -647,6 +735,127 @@ class DetailScreen extends React.Component {
 		);
 	}
 }
+export default class CardFormScreen extends React.Component {
+	  state = {
+	    loading: false,
+	    allowed: false,
+	    complete: true,
+	    status: null,
+	    token: null,
+	  }
+
+	  async componentWillMount() {
+	    const allowed = await stripe.deviceSupportsApplePay()
+	    this.setState({ allowed })
+	  }
+
+	  handleCompleteChange = (complete) => (
+	    this.setState({ complete })
+	  )
+
+	  handleApplePayPress = async () => {
+	    try {
+	      this.setState({
+	        loading: true,
+	        status: null,
+	        token: null,
+	      })
+	      const token = await stripe.paymentRequestWithApplePay([{
+	        label: 'Ride Deposit',
+	        amount: '10.00',
+	      }], {
+	        // requiredBillingAddressFields: 'all',
+	        // requiredShippingAddressFields: 'all',
+	        shippingMethods: [{
+	          id: 'Digital',
+	          label: 'Online',
+	          detail: 'FREE',
+	          amount: '0.00',
+	        }],
+	      })
+
+	      console.log('Result:', token)
+	      this.setState({ loading: false, token })
+
+	      if (this.state.complete) {
+	        await stripe.completeApplePayRequest()
+	        console.log('Apple Pay payment completed')
+	        this.setState({ status: 'Apple Pay payment completed'})
+	      } else {
+	        await stripe.cancelApplePayRequest()
+	        console.log('Apple Pay payment cenceled')
+	        this.setState({ status: 'Apple Pay payment cenceled'})
+	      }
+	    } catch (error) {
+	      console.log('Error:', error)
+	      this.setState({ loading: false, status: `Error: ${error.message}` })
+	    }
+	  }
+
+	  handleSetupApplePayPress = () => (
+	    stripe.openApplePaySetup()
+	  )
+
+	  render() {
+	    const { loading, allowed, complete, status, token } = this.state
+
+	    return (
+	      <View style={styles.container}>
+	        <Text style={styles.header}>
+	          Apple Pay Example
+	        </Text>
+	        <Text style={styles.instruction}>
+	          Click button to show Apple Pay dialog.
+	        </Text>
+	        <Button
+	          text="Pay with Pay"
+	          disabledText="Not supported"
+	          loading={loading}
+	          disabled={!allowed}
+	          onPress={this.handleApplePayPress}
+
+	        />
+	        <Text style={styles.instruction}>
+	          Complete the operation on tokent
+	        </Text>
+	        <Switch
+	          style={styles.switch}
+	          value={complete}
+	          onValueChange={this.handleCompleteChange}
+
+	        />
+	        <View>
+	          {token &&
+	            <Text
+	              style={styles.instruction}
+	              >
+	              Token: {token.tokenId}
+	            </Text>
+	          }
+	          {status &&
+	            <Text
+	              style={styles.instruction}
+	            >
+	              {status}
+	            </Text>
+	          }
+	        </View>
+	        <View style={styles.hintContainer}>
+	          <Button
+	            text="Setup Pay"
+	            disabledText="Not supported"
+	            disabled={!allowed}
+	            onPress={this.handleSetupApplePayPress}
+
+	          />
+	          <Text style={styles.hint}>
+	            ('Setup Pay' works only on real device)
+	          </Text>
+	        </View>
+	      </View>
+	    )
+	  }
+	}
 
 class CreateScreen extends React.Component {
 	static navigationOptions = {
@@ -790,10 +999,12 @@ const styles = StyleSheet.create({
 const Charter = StackNavigator({
 	Welcome: { screen: WelcomeScreen },
 	Complete: { screen: CompleteScreen },
+	Profile: { screen: ProfileScreen },
 	List:   { screen: ListScreen   },
 	Search: { screen: SearchScreen },
 	Detail: { screen: DetailScreen },
 	Create: { screen: CreateScreen },
+	Pay: { screen: CardFormScreen },
 }, {
       headerMode: 'screen'
 });
