@@ -13,10 +13,10 @@ import {
 	Image,
 	Switch
 } from 'react-native';
-import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem } from 'native-base';
-import {
-	Button
-} from 'react-native-elements'
+import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem, Button } from 'native-base';
+// import {
+// 	Button
+// } from 'react-native-elements'
 import { StackNavigator } from 'react-navigation';
 import * as firebase from 'firebase';
 
@@ -50,9 +50,9 @@ var Pickups = {
 class WelcomeScreen extends React.Component {
 	constructor(props) {
 		stripe.init({
-	  publishableKey: 'pk_test_1EEnYhGwfy50KhTeVRMkEbDH',
-	  merchantId: 'MERCHANT_ID', // Optional
-	})
+	  		publishableKey: 'pk_test_1EEnYhGwfy50KhTeVRMkEbDH',
+	  		merchantId: 'MERCHANT_ID', // Optional
+		});
 
 		super(props);
 
@@ -263,6 +263,112 @@ class CompleteScreen extends React.Component {
 
 }
 
+class ProfileScreen extends React.Component {
+	static navigationOptions = {
+		// Nav options can be defined as a function of the navigation prop:
+		title: ({ state }) => 'Profile',
+		header: {
+		    titleStyle: {
+		     	color: 'black',
+		     	letterSpacing: 2,
+			fontFamily: "oregon",
+		     	fontWeight: '500'
+		    },
+		    style: {
+		     	backgroundColor: '#00FFCC'
+		    },
+		    tintColor: {
+		      	backgroundColor: '#FCEE6D'
+		    }
+		  }
+	};
+
+	constructor(props) {
+		super(props);
+		this.logout = this.logout.bind(this);
+		this.getName = this.getName.bind(this);
+		this.state = {
+			name: '',
+			uid: ''
+		};
+	}
+
+	async logout() {
+
+		const { navigate } = this.props.navigation;
+
+		try {
+			await firebase.auth().signOut();
+
+			console.log("LOGGED OUT!");
+
+			// Navigate to the Home page
+			navigate('Welcome', { });
+
+		} catch (error) {
+			Alert.alert(
+				error.toString(),
+				null,
+				[
+				  {text: 'Forgot Password?', onPress: () => console.log('Forgot Password?')},
+				  {text: 'Login', onPress: () => console.log('Login')},
+				  {text: 'Signup', onPress: () => console.log('Signup')},
+				]
+			 )
+			console.log(error.toString())
+		}
+
+	}
+
+	getName() {
+		var currentUid = firebase.auth().currentUser.uid;
+		this.setState({
+			uid: currentUid,
+		 });
+		var userRef = firebase.database().ref('users/' + currentUid);
+		userRef.on('value', (snapshot) => {
+			this.setState({ name: snapshot.val().name });
+		});
+
+	}
+
+	componentDidMount() {
+		this.getName();
+	}
+
+	render() {
+		return (
+			<View style={{
+				justifyContent: 'center',
+				backgroundColor: 'white',
+				flex: 1,
+			}}>
+				<View style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20}}>
+					<View>
+					<Thumbnail source={require('./two.jpg')} />
+					</View>
+					<View style={{paddingTop: 2}}>
+						<Text style={styles.welcome}>{this.state.name}</Text>
+					</View>
+				</View>
+				<View style={{flex: 5}}>
+					<List>
+						<ListItem>
+							<Text>My Charters</Text>
+						</ListItem>
+						<ListItem>
+							<Text>Joined Charters</Text>
+						</ListItem>
+					</List>
+				</View>
+				<Button full danger onPress={this.logout}>
+					<Text style={{color:'white'}}>Logout</Text>
+				</Button>
+			</View>
+		);
+	}
+}
+
 class SearchScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
@@ -291,39 +397,10 @@ class SearchScreen extends React.Component {
 			}),
 			textInputValue: ''
 		};
-
-		this.logout = this.logout.bind(this);
 	}
 
 	getRef() {
 		return firebaseApp.database().ref();
-	}
-
-	async logout() {
-
-		const { navigate } = this.props.navigation;
-
-		try {
-			await firebase.auth().signOut();
-
-			console.log("LOGGED OUT!");
-
-			// Navigate to the Home page
-			navigate('Welcome', { });
-
-		} catch (error) {
-			Alert.alert(
-				error.toString(),
-				null,
-				[
-				  {text: 'Forgot Password?', onPress: () => console.log('Forgot Password?')},
-				  {text: 'Login', onPress: () => console.log('Login')},
-				  {text: 'Signup', onPress: () => console.log('Signup')},
-				]
-			 )
-			console.log(error.toString())
-		}
-
 	}
 
 	listenForCharters(chartersRef) {
@@ -417,8 +494,8 @@ class SearchScreen extends React.Component {
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Pay', { })} underlayColor='#e2d662'>
 					<Text style={styles.buttonText}>Pay</Text>
 				</TouchableHighlight>
-				<TouchableHighlight style={styles.button} onPress={this.logout} underlayColor='#e2d662'>
-					<Text style={styles.buttonText}>LOG OUT</Text>
+				<TouchableHighlight style={styles.button} onPress={() => navigate('Profile', {})} underlayColor='#e2d662'>
+					<Text style={styles.buttonText}>Profile</Text>
 
 				</TouchableHighlight>
 			</View>
@@ -620,7 +697,7 @@ class DetailScreen extends React.Component {
 		const { navigate } = this.props.navigation;
 
 		return (
-			<Container backgroundColor='#EFF0F0'>
+			<Container backgroundColor='white'>
 			<Content>
 
 			<View>
@@ -927,6 +1004,7 @@ const styles = StyleSheet.create({
 const Charter = StackNavigator({
 	Welcome: { screen: WelcomeScreen },
 	Complete: { screen: CompleteScreen },
+	Profile: { screen: ProfileScreen },
 	List:   { screen: ListScreen   },
 	Search: { screen: SearchScreen },
 	Detail: { screen: DetailScreen },
