@@ -24,8 +24,9 @@ var {
   TouchableOpacity,
 
 } = ReactNative;
-import { Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem, Button} from 'native-base';
+import { ActionSheet, Separator, Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem, Button} from 'native-base';
 import { StackNavigator } from 'react-navigation';
+import Drawer from 'react-native-drawer'
 import * as firebase from 'firebase';
 
 // tcomb-form-native
@@ -72,12 +73,10 @@ class OpenURLButton extends React.Component {
 
   render() {
     return (
-      <TouchableOpacity
-        onPress={this.handleClick}>
-        <View style={styles.button}>
-          <Text style={styles.text}>Open {this.props.url}</Text>
-        </View>
-      </TouchableOpacity>
+      <TouchableHighlight
+        onPress={this.handleClick} style={styles.button} underlayColor='#00FFCC'>
+          <Text style={styles.buttonText}>Request Uber</Text>
+      </TouchableHighlight>
     );
   }
 }
@@ -88,7 +87,7 @@ class IntentAndroidExample extends React.Component {
 
   render() {
     return (
-        <OpenURLButton url={'uber://'} />
+        <OpenURLButton style = {styles.button} url={'uber://'} />
 
     );
   }
@@ -97,6 +96,7 @@ class IntentAndroidExample extends React.Component {
 
 
 module.exports = IntentAndroidExample;
+
 class WelcomeScreen extends React.Component {
 	constructor(props) {
 		stripe.init({
@@ -118,20 +118,21 @@ class WelcomeScreen extends React.Component {
 	}
 
 	static navigationOptions = {
-		title: ' ',
+		title: 'WELCOME',
 		header: {
 		    titleStyle: {
-		     	color: '#B5BABF',
-		     	letterSpacing: 2,
+		     	color: 'white',
+		     	letterSpacing: 5,
+		     	fontSize: 25,
+				fontFamily: "oregon",
 		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: {
-		      	backgroundColor: '#FCEE6D'
-		    },
-			left: null
+		    tintColor:'white',
+			left: null,
+
 		  }
 	};
 
@@ -253,18 +254,19 @@ class CompleteScreen extends React.Component {
 
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => ` `,
+		title: ({ state }) => `SIGN UP`,
 		header: {
-		    titleStyle: {
-		     	color: 'black',
-		     	letterSpacing: 2,
-			fontFamily: "oregon",
+		     titleStyle: {
+		     	color: 'white',
+		     	letterSpacing: 5,
+		     	fontSize: 25,
+				fontFamily: "oregon",
 		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: 'black',
+		    tintColor: 'white',
 		}
 	};
 
@@ -314,18 +316,19 @@ class CompleteScreen extends React.Component {
 class ProfileScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => 'Profile',
+		title: ({ state }) => 'PROFILE',
 		header: {
-		    titleStyle: {
-		     	color: 'black',
-		     	letterSpacing: 2,
-			fontFamily: "oregon",
+		     titleStyle: {
+		     	color: 'white',
+		     	letterSpacing: 5,
+		     	fontSize: 25,
+				fontFamily: "oregon",
 		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: 'black',
+		    tintColor: 'white',
 		}
 
 	};
@@ -453,7 +456,10 @@ class ProfileScreen extends React.Component {
 				</View>
 
 				<View style={{flex: 5}}>
-					<Text style={{fontWeight:'bold'}}>Charters Owned:</Text>
+					
+					<Separator bordered>
+                        <Text style = {styles.bodyText}>Charters Owned:</Text>
+                    </Separator>
 					<List dataArray={this.state.data.list_chartersOwned} renderRow={(item) =>
 						<ListItem button onPress={() => navigate('OwnDetail', { charterId: item.id })}>
 							<Body>
@@ -465,7 +471,10 @@ class ProfileScreen extends React.Component {
 							</Right>
 						</ListItem>
 					} />
-					<Text style={{fontWeight:'bold'}}>Charters Joined:</Text>
+					<Separator bordered>
+                        <Text style = {styles.bodyText}>Charters Joined:</Text>
+                    </Separator>
+					
 					<List dataArray={this.state.data.list_chartersJoined} renderRow={(item) =>
 						<ListItem button onPress={() => navigate('JoinDetail', { charterId: item.id })}>
 							<Body>
@@ -487,27 +496,6 @@ class ProfileScreen extends React.Component {
 }
 
 class SearchScreen extends React.Component {
-	static navigationOptions = {
-		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => 'Search',
-		header: {
-		    titleStyle: {
-		     	color: 'black',
-		     	letterSpacing: 2,
-			fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor: {
-		      	backgroundColor: '#FCEE6D'
-		    },
-			left: null
-		  },
-	};
-
-
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -517,6 +505,25 @@ class SearchScreen extends React.Component {
 			textInputValue: ''
 		};
 	}
+
+	static navigationOptions = {
+		// Nav options can be defined as a function of the navigation prop:
+		title: ({ state }) => 'SEARCH',
+		header: {
+		     titleStyle: {
+		     	color: 'white',
+		     	letterSpacing: 5,
+		     	fontSize: 25,
+				fontFamily: "oregon",
+		     	fontWeight: '500'
+		    },
+		    style: {
+		     	backgroundColor: '#00FFCC'
+		    },
+		    tintColor: 'white',
+			left: null,
+		  },
+	};
 
 	getRef() {
 		return firebaseApp.database().ref();
@@ -553,10 +560,13 @@ class SearchScreen extends React.Component {
 		}
 	}
 
+	
+
 	render() {
 
 		const { params } = this.props.navigation.state;
 		const { navigate } = this.props.navigation;
+		
 
 		var Destinations = t.enums({
 			'PEN': 'Penn Station NY',
@@ -588,9 +598,11 @@ class SearchScreen extends React.Component {
 
 		}; // optional rendering options (see documentation)
 
-
 		return (
+					
+			
 			<View style={styles.container}>
+
 
 				<NewCharterForm
 					ref="form"
@@ -605,10 +617,10 @@ class SearchScreen extends React.Component {
 					<Text style={styles.buttonText}>CREATE</Text>
 				</TouchableHighlight>
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Intent', { })} underlayColor='#e2d662'>
-					<Text style={styles.buttonText}>Pay</Text>
+					<Text style={styles.buttonText}>PAY</Text>
 				</TouchableHighlight>
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Profile', {})} underlayColor='#e2d662'>
-					<Text style={styles.buttonText}>Profile</Text>
+					<Text style={styles.buttonText}>PROFILE</Text>
 
 				</TouchableHighlight>
 			</View>
@@ -619,18 +631,20 @@ class SearchScreen extends React.Component {
 class ListScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `Available Charters`,
+		title: ({ state }) => `AVAILABLE CHARTERS`,
 		header: {
-		    titleStyle: {
-		     	color: 'black',
+		     titleStyle: {
+		     	color: 'white',
 		     	letterSpacing: 2,
-			fontFamily: "oregon",
+		     	fontSize: 21,
+				fontFamily: "oregon",
 		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: 'black',
+		    tintColor: 'white',
+
 		}
 	};
 
@@ -683,7 +697,7 @@ class ListScreen extends React.Component {
 
 	getTime(text) {
 		var date = new Date(text);
-		var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
+		var d = date.toLocaleTimeString();
 		return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
 	}
 
@@ -730,18 +744,19 @@ class ListScreen extends React.Component {
 class OwnDetailScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `Ride Details`,
+		title: ({ state }) => `RIDE DETAILS`,
 		header: {
 		    titleStyle: {
-		     	color: 'black',
-		     	letterSpacing: 2,
-			fontFamily: "oregon",
+		     	color: 'white',
+		     	letterSpacing: 5,
+		     	fontSize: 25,
+				fontFamily: "oregon",
 		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: 'black',
+		    tintColor: 'white',
 		}
 	};
 
@@ -858,9 +873,11 @@ class OwnDetailScreen extends React.Component {
 				</ListItem>} />
 
 			</Content>
+			<OpenURLButton style = {styles.button} url={'uber://'} />
 			<TouchableHighlight style={styles.button} onPress={this.markCompleted}>
 				<Text style={styles.buttonText}>Charter Completed</Text>
 			</TouchableHighlight>
+
 			</Container>
 
 
@@ -872,18 +889,19 @@ class OwnDetailScreen extends React.Component {
 class JoinDetailScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `Ride Details`,
+		title: ({ state }) => `RIDE DETAILS`,
 		header: {
 		    titleStyle: {
-		     	color: 'black',
-		     	letterSpacing: 2,
-			fontFamily: "oregon",
+		     	color: 'white',
+		     	letterSpacing: 5,
+		     	fontSize: 25,
+				fontFamily: "oregon",
 		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: 'black',
+		    tintColor: 'white',
 		}
 	};
 
@@ -1049,18 +1067,19 @@ class JoinDetailScreen extends React.Component {
 class DetailScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `Ride Details`,
+		title: ({ state }) => `RIDE DETAILS`,
 		header: {
-		    titleStyle: {
-		     	color: 'black',
-		     	letterSpacing: 2,
-			fontFamily: "oregon",
+		     titleStyle: {
+		     	color: 'white',
+		     	letterSpacing: 5,
+		     	fontSize: 25,
+				fontFamily: "oregon",
 		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: 'black',
+		    tintColor: 'white',
 		}
 	};
 
@@ -1261,12 +1280,12 @@ class DetailScreen extends React.Component {
 			<Text style={styles.bodyText}>Timeline:</Text>
 
 			<Item regular>
-				<Input onChangeText={(text) => this.setState({newMessage: text})} placeholder='Aa'/>
+				<Input onChangeText={(text) => this.setState({newMessage: text})} placeholder='Leave a Comment...'/>
+				<Right><TouchableHighlight style={styles.sideButton} onPress={this.postMessage} underlayColor='#00FFCC'>
+					<Text style={styles.sideButtonText}>SUBMIT</Text>
+				</TouchableHighlight>
+				</Right>
 			</Item>
-
-			<Button full onPress={this.postMessage}>
-				<Text style={{color:'white'}}>Update</Text>
-			</Button>
 
 			<List dataArray={this.state.timeline.messages} renderRow={(rowData) =>
 				<ListItem>
@@ -1274,9 +1293,9 @@ class DetailScreen extends React.Component {
 				</ListItem>} />
 
 			</Content>
-			<Button full onPress={this.join}>
-					<Text style={{color:'white'}}>Join Ride</Text>
-			</Button>
+			<TouchableHighlight style={styles.button} onPress={this.join} underlayColor='#00FFCC'>
+					<Text style={styles.buttonText}>JOIN RIDE</Text>
+			</TouchableHighlight>
 			</Container>
 
 
@@ -1412,16 +1431,17 @@ class CreateScreen extends React.Component {
 		// Nav options can be defined as a function of the navigation prop:
 		title: ({ state }) => "CREATE A RIDE",
 		header: {
-		    titleStyle: {
-		     	color: 'black',
-		     	letterSpacing: 2,
-			fontFamily: "oregon",
+		     titleStyle: {
+		     	color: 'white',
+		     	letterSpacing: 5,
+		     	fontSize: 25,
+				fontFamily: "oregon",
 		     	fontWeight: '500'
 		    },
 		    style: {
 		     	backgroundColor: '#00FFCC'
 		    },
-		    tintColor: 'black',
+		    tintColor: 'white',
 		}
 	};
 
@@ -1527,21 +1547,40 @@ const styles = StyleSheet.create({
 	},
 	buttonText: {
 		fontSize: 15,
+		fontFamily: "Roboto",
 		color: 'white',
 		alignSelf: 'center',
 		fontWeight: 'bold',
 		letterSpacing: 2,
+		textAlignVertical: 'center'
 	},
 	button: {
 		height: 36,
-		backgroundColor: '#307d8e',
-		borderColor: '#307d8e',
-		borderWidth: 1,
+		backgroundColor: '#4887c7',
+		borderColor: 'white',
+		borderWidth: 2,
 		borderRadius: 8,
-		marginBottom: 10,
 		alignSelf: 'stretch',
 		justifyContent: 'center',
 
+	},
+	sideButton: {
+		backgroundColor: 'white',
+		height: 30,
+		width: 100,
+		borderColor: '#00FFCC',
+		borderWidth: 2,
+		borderRadius: 8,
+		justifyContent: 'center',
+	},
+	sideButtonText: {
+		fontSize: 15,
+		fontFamily: "Roboto",
+		color: '#00FFCC',
+		alignSelf: 'center',
+		fontWeight: 'bold',
+		letterSpacing: 2,
+		textAlignVertical: 'center'
 	},
 	welcome: {
 		fontSize: 20,
@@ -1551,7 +1590,8 @@ const styles = StyleSheet.create({
 	bodyText: {
   		fontSize: 20,
   		fontWeight: 'bold',
-		color: 'black'
+		color: 'black',
+		fontFamily: 'Roboto'
 	}
 });
 
