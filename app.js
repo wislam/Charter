@@ -1,7 +1,6 @@
 
 'use strict';
 import React from 'react';
-
 import stripe from 'tipsi-stripe'
 import {
 	AppRegistry,
@@ -14,7 +13,8 @@ import {
 	Platform,
 	Alert,
 	Image,
-	Switch
+	Switch,
+	AlertIOS
 } from 'react-native';
 var UIExplorerBlock = require('./');
 var ReactNative = require('react-native');
@@ -761,33 +761,7 @@ class OwnDetailScreen extends React.Component {
 		//ownerUid = "";
 
 		this.componentWillMount = this.componentWillMount.bind(this);
-		this.join = this.join.bind(this);
 		this.markCompleted = this.markCompleted.bind(this);
-	}
-
-	join() {
-		const { params } = this.props.navigation.state;
-
-		alert(firebase.auth().currentUser.uid);
-		alert(this.state.ownerUid);
-
-		if (firebase.auth().currentUser.uid != this.state.ownerUid) {
-			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
-			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
-		}
-
-		else {
-			// TODO Make the component for Join conditional so that it only shows up when owner != currentUser
-			Alert.alert(
-				"You can't join your own trip!",
-				null,
-				[
-				  {text: 'OK', onPress: () => console.log('OK')},
-				]
-			 )
-		}
-
-
 	}
 
 	markCompleted() {
@@ -801,7 +775,6 @@ class OwnDetailScreen extends React.Component {
 		var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
 		return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
 	}
-
 
 	componentWillMount() {
 		const { params } = this.props.navigation.state;
@@ -889,6 +862,8 @@ class OwnDetailScreen extends React.Component {
 				<Text style={styles.buttonText}>Charter Completed</Text>
 			</TouchableHighlight>
 			</Container>
+
+
 
 		);
 	}
@@ -1096,16 +1071,19 @@ class DetailScreen extends React.Component {
 			ownerUid: "",
 			pickup: "",
 			time: "",
-			timeline: [],
+			timeline: {
+				messages: []
+			},
 			ownerName: "",
 			data: {
 				riders: []
-			}
+			},
+			newMessage: ""
 		};
-		//ownerUid = "";
 
 		this.componentWillMount = this.componentWillMount.bind(this);
 		this.join = this.join.bind(this);
+		this.postMessage = this.postMessage.bind(this);
 	}
 
 	join() {
@@ -1191,7 +1169,48 @@ class DetailScreen extends React.Component {
 			}
 		});
 
-		// this.forceUpdate();
+		var timelineRef = firebase.database().ref('charters/' + params.charterId + '/timeline');
+
+		var list_messages = [];
+		timelineRef.on('value', (snap) => {
+			snap.forEach((child) => {
+				var newMessage = {
+					text: "",
+					sender_name: ""
+				}
+
+				newMessage.text = child.val().text;
+				newMessage.sender_name = child.val().sender_name;
+
+				list_messages.push(newMessage);
+			});
+		});
+
+		console.log(list_messages);
+
+		this.setState({
+			timeline: {
+				messages: list_messages
+			}
+		});
+	}
+
+	postMessage() {
+		const {params} = this.props.navigation.state;
+
+		var timelineRef = firebase.database().ref('charters/' + params.charterId + '/timeline');
+
+		// var newMessage = "";
+		// AlertIOS.prompt(
+		// 	'Post an update:',
+		// 	null,
+		// 	text => newMessage = text
+		// );
+
+		timelineRef.push({
+			sender_name: firebase.auth().currentUser.displayName,
+			text: this.state.newMessage
+		})
 	}
 
 	componentDidMount() {
@@ -1204,8 +1223,6 @@ class DetailScreen extends React.Component {
     }
 
 	render() {
-		console.log('data = ');
-		console.log(this.state.data.riders);
 		// The screen's current route is passed in to `props.navigation.state`:
 		const { params } = this.props.navigation.state;
 		const { navigate } = this.props.navigation;
@@ -1241,11 +1258,27 @@ class DetailScreen extends React.Component {
 					<Body><Text>{rowData}</Text></Body>
 				</ListItem>} />
 
+			<Text style={styles.bodyText}>Timeline:</Text>
+
+			<Item regular>
+				<Input onChangeText={(text) => this.setState({newMessage: text})} placeholder='Aa'/>
+			</Item>
+
+			<Button full onPress={this.postMessage}>
+				<Text style={{color:'white'}}>Update</Text>
+			</Button>
+
+			<List dataArray={this.state.timeline.messages} renderRow={(rowData) =>
+				<ListItem>
+					<Text>{rowData.sender_name}: {rowData.text}</Text>
+				</ListItem>} />
+
 			</Content>
 			<Button full onPress={this.join}>
 					<Text style={{color:'white'}}>Join Ride</Text>
 			</Button>
 			</Container>
+
 
 
 		);
@@ -1405,10 +1438,15 @@ class CreateScreen extends React.Component {
 			owner_name: firebase.auth().currentUser.displayName,
 			pickup: value.pickup,
 			time: value.time.toString(),
-			timeline: { m1: 'Welcome to your new Charter! Use this timeline to post any updates.' }
 		}
 
 		firebase.database().ref('charters/' + newCharterKey).set(newCharterData);
+		firebase.database().ref('charters/' + newCharterKey + '/timeline').push(
+			{
+				text: "Welcome to your new Charter! Use this timeline to post any updates.",
+				sender_name: firebase.auth().currentUser.displayName
+			}
+		);
 
 		firebase.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-owned/' + newCharterKey).set(true);
 		navigate('Detail', { charterId: newCharterKey });
