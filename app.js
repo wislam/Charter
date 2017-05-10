@@ -34,6 +34,14 @@ console.disableYellowBox = true;
 var t = require('tcomb-form-native');
 var NewCharterForm = t.form.Form;
 
+const IMAGES = {
+	Qu3kgJP47JQLMFgVkWn1io1U6i23: require('./assets/images/Qu3kgJP47JQLMFgVkWn1io1U6i23.jpg'),
+	Ztc6q88Tn3gfJQ0lxQCDgMQEbQw2: require('./assets/images/Ztc6q88Tn3gfJQ0lxQCDgMQEbQw2.jpg'),
+	cQtPjZu9ORMOjeCPTXgcKz9gHo73: require('./assets/images/cQtPjZu9ORMOjeCPTXgcKz9gHo73.jpg'),
+	mlYGv7qKCbe7N9pbUBrChiG66RD2: require('./assets/images/mlYGv7qKCbe7N9pbUBrChiG66RD2.jpg'),
+	retvID4uyRQ0RFfgUlf2YxMjPMD2: require('./assets/images/retvID4uyRQ0RFfgUlf2YxMjPMD2.jpg')
+}
+
 // Initialize Firebase
 const firebaseConfig = {
 	apiKey: "AIzaSyDYEq76HH9bRI1YbhV-Q8_-B5ue7Vyh4-g",
@@ -449,7 +457,7 @@ class ProfileScreen extends React.Component {
 			}}>
 				<View style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20}}>
 					<View>
-					<Thumbnail source={require('./two.jpg')} />
+					<Thumbnail source={IMAGES[this.state.uid]} />
 					</View>
 					<View style={{paddingTop: 2}}>
 						<Text style={styles.welcome}>{this.state.name}</Text>
@@ -601,7 +609,8 @@ class SearchScreen extends React.Component {
 
 		return (
 
-
+			<Container backgroundColor='white'>
+			<Content style={{ marginTop: '7.5%' }} >
 			<View style={styles.container}>
 
 
@@ -610,6 +619,8 @@ class SearchScreen extends React.Component {
 					type={newCharter}
 					options={options}
 				/>
+			</View>
+			</Content>
 
 				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>SEARCH</Text>
@@ -617,14 +628,10 @@ class SearchScreen extends React.Component {
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Create', { })} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>CREATE</Text>
 				</TouchableHighlight>
-				<TouchableHighlight style={styles.button} onPress={() => navigate('Intent', { })} underlayColor='#e2d662'>
-					<Text style={styles.buttonText}>PAY</Text>
-				</TouchableHighlight>
 				<TouchableHighlight style={styles.button} onPress={() => navigate('Profile', {})} underlayColor='#e2d662'>
 					<Text style={styles.buttonText}>PROFILE</Text>
-
 				</TouchableHighlight>
-			</View>
+			</Container>
 		);
 	}
 }
@@ -708,7 +715,7 @@ class ListScreen extends React.Component {
 	const { navigate } = this.props.navigation;
 
 	return (
-		<Container backgroundColor='#EFF0F0'>
+		<Container backgroundColor='white'>
 		<Content style={{ marginTop: '7.5%' }} >
 		<Grid>
 		<Row>
@@ -717,7 +724,7 @@ class ListScreen extends React.Component {
 			renderRow={(rowData) =>
 				<ListItem avatar button onPress={() => navigate('Detail', { charterId: rowData.id })}>
 					<Left>
-						<Thumbnail source={require('./two.jpg')} />
+						<Thumbnail source={IMAGES[rowData.owner]} />
 					</Left>
 					<Body>
 						<Text style={{fontSize:18}}>{rowData.owner_name}</Text>
@@ -733,9 +740,12 @@ class ListScreen extends React.Component {
 		</Grid>
 
 		</Content>
-		<TouchableHighlight style={styles.button} onPress={() => navigate('Create', {})} underlayColor='#00FFCC'>
-				<Text style={styles.buttonText}>CREATE NEW RIDE</Text>
-		</TouchableHighlight>
+			<TouchableHighlight style={styles.button} onPress={() => navigate('Create', {})} underlayColor='#00FFCC'>
+					<Text style={styles.buttonText}>CREATE NEW RIDE</Text>
+			</TouchableHighlight>
+			<TouchableHighlight style={styles.button} onPress={() => navigate('Profile', {})} underlayColor='#e2d662'>
+				<Text style={styles.buttonText}>PROFILE</Text>
+			</TouchableHighlight>
 		</Container>
 	);
 }
@@ -823,23 +833,24 @@ class OwnDetailScreen extends React.Component {
 
 			// get children as an array
 			snap.forEach((child) => {
-				list_riders.push(child.key);
+				var newRider = {
+					name: "",
+					uid: ""
+				}
+				newRider.uid = child.key;
+				firebase.database().ref('users/' + child.key).on('value', (innersnap) => {
+					newRider.name = innersnap.val().name;
+				});
+
+				list_riders.push(newRider);
 			});
 
 		});
 
-		var list_riders_names = [];
-		for (var x in list_riders) {
-			console.log(list_riders[x]);
-			firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
-				list_riders_names.push(snap.val().name);
-			});
-		}
-
-		console.log(list_riders_names);
-
 		this.setState({
-			riders: this.state.riders.cloneWithRows(list_riders_names)
+			data: {
+				riders: list_riders
+			}
 		});
 	}
 
@@ -863,27 +874,29 @@ class OwnDetailScreen extends React.Component {
 			 </ListItem>
 
             <ListItem avatar>
-		       <Left><Thumbnail source={require('./one.jpg')} /></Left>
+		       <Left><Thumbnail source={IMAGES[this.state.ownerUid]} /></Left>
 		    	<Body>
 		    		<Text style={{fontWeight: 'bold', fontSize: 15}}>{this.state.ownerName}</Text>
 		    	</Body>
 		    </ListItem>
 
-			<Text style={styles.bodyText}>Current Riders:</Text>
+			<Separator bordered>
+				<Text style = {styles.separatorText}>Current Riders:</Text>
+			</Separator>
 
 			</View>
 
 			<ListView dataSource={this.state.riders} renderRow={(rowData) =>
 				<ListItem avatar>
-					<Left><Thumbnail source={require('./two.jpg')} /></Left>
+					<Left><Thumbnail source={IMAGES[rowData.uid]} /></Left>
 					<Body><Text>{rowData}</Text></Body>
 				</ListItem>} />
 
 			</Content>
-			<OpenURLButton style = {styles.button} url={'uber://'} />
-			<TouchableHighlight style={styles.button} onPress={this.markCompleted}>
-				<Text style={styles.buttonText}>Charter Completed</Text>
-			</TouchableHighlight>
+				<OpenURLButton style = {styles.button} url={'uber://?action=setPickup&client_id=yv1QEhEQm8SsCbaptSahN_Cg5DEDAmm0&pickup=my_location&dropoff[formatted_address]=Penn%20Station%2C%20West%2033rd%20Street%2C%20New%20York%2C%20NY%2C%20United%20States&dropoff[latitude]=40.750303&dropoff[longitude]=-73.990906'} />
+				<TouchableHighlight style={styles.button} onPress={this.markCompleted}>
+					<Text style={styles.buttonText}>Charter Completed</Text>
+				</TouchableHighlight>
 
 			</Container>
 
@@ -921,9 +934,9 @@ class JoinDetailScreen extends React.Component {
 			time: "",
 			timeline: [],
 			ownerName: "",
-			riders: new ListView.DataSource({
-				rowHasChanged: (row1, row2) => row1 !== row2,
-			})
+			data: {
+				riders: []
+			}
 		};
 		//ownerUid = "";
 
@@ -950,7 +963,6 @@ class JoinDetailScreen extends React.Component {
 				{text: 'Yes', onPress: this.leavelogic},
 				{text: 'No', onPress: () => console.log('NO')}
 			])
-
 
 	}
 
@@ -979,24 +991,31 @@ class JoinDetailScreen extends React.Component {
 
 			// get children as an array
 			snap.forEach((child) => {
-				list_riders.push(child.key);
+				var newRider = {
+					name: "",
+					uid: ""
+				}
+				newRider.uid = child.key;
+				firebase.database().ref('users/' + child.key).on('value', (innersnap) => {
+					newRider.name = innersnap.val().name;
+				});
+
+				list_riders.push(newRider);
 			});
 
 		});
-
-		var list_riders_names = [];
-		for (var x in list_riders) {
-			console.log(list_riders[x]);
-			firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
-				list_riders_names.push(snap.val().name);
-			});
-		}
-
-		console.log(list_riders_names);
 
 		this.setState({
-			riders: this.state.riders.cloneWithRows(list_riders_names)
+			data: {
+				riders: list_riders
+			}
 		});
+	}
+
+	getTime(text) {
+		var date = new Date(text);
+		var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
+		return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
 	}
 
 	render() {
@@ -1015,30 +1034,30 @@ class JoinDetailScreen extends React.Component {
 
               <ListItem>
 				<Left><Text style={styles.bodyText}>{Destinations[this.state.destination]}</Text></Left>
-				<Left><Text note>{this.state.time}, {Pickups[this.state.pickup]}</Text></Left>
+				<Left><Text note>{this.getTime(this.state.time)}, {Pickups[this.state.pickup]}</Text></Left>
 			 </ListItem>
 
             <ListItem avatar>
-		       <Left><Thumbnail source={require('./one.jpg')} /></Left>
+		       <Left><Thumbnail source={IMAGES[this.state.ownerUid]} /></Left>
 		    	<Body>
 		    		<Text style={{fontWeight: 'bold', fontSize: 15}}>{this.state.ownerName}</Text>
 		    	</Body>
 		    </ListItem>
 
-			<Text style={styles.bodyText}>Current Riders:</Text>
+			<Text style={styles.separatorText}>Current Riders:</Text>
 
 			</View>
 
 			<ListView dataSource={this.state.riders} renderRow={(rowData) =>
 				<ListItem avatar>
-					<Left><Thumbnail source={require('./two.jpg')} /></Left>
-					<Body><Text>{rowData}</Text></Body>
+					<Left><Thumbnail source={IMAGES[rowData.uid]} /></Left>
+					<Body><Text>{rowData.name}</Text></Body>
 				</ListItem>} />
 
 			</Content>
-			<TouchableHighlight style={styles.button} onPress={this.leave}>
-				<Text style={styles.buttonText}>LEAVE CHARTER</Text>
-			</TouchableHighlight>
+				<TouchableHighlight style={styles.button} onPress={this.leave}>
+					<Text style={styles.buttonText}>LEAVE CHARTER</Text>
+				</TouchableHighlight>
 			</Container>
 
 		);
@@ -1092,6 +1111,12 @@ class DetailScreen extends React.Component {
 		this.postMessage = this.postMessage.bind(this);
 	}
 
+	getTime(text) {
+		var date = new Date(text);
+		var d = String(date.toDateString() + ' ' + date.toLocaleTimeString());
+		return d.substring(0, d.length - 6).concat(d.substring(d.length - 3, d.length));
+	}
+
 	handleApplePayPress = async () => {
 		try {
 			this.setState({
@@ -1122,8 +1147,8 @@ class DetailScreen extends React.Component {
 				this.setState({ status: 'Apple Pay payment completed'})
 			} else {
 				await stripe.cancelApplePayRequest()
-				console.log('Apple Pay payment cenceled')
-				this.setState({ status: 'Apple Pay payment cenceled'})
+				console.log('Apple Pay payment cancelled')
+				this.setState({ status: 'Apple Pay payment cancelled'})
 			}
 		} catch (error) {
 			console.log('Error:', error)
@@ -1198,26 +1223,36 @@ class DetailScreen extends React.Component {
 
 			// get children as an array
 			snap.forEach((child) => {
-				list_riders.push(child.key);
+				var newRider = {
+					name: "",
+					uid: ""
+				}
+				newRider.uid = child.key;
+				firebase.database().ref('users/' + child.key).on('value', (innersnap) => {
+					newRider.name = innersnap.val().name;
+				});
+
+				list_riders.push(newRider);
 			});
 
 		});
-
-		var list_riders_names = [];
-		for (var x in list_riders) {
-			console.log(list_riders[x]);
-			firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
-				list_riders_names.push(snap.val().name);
-			});
-		}
-
-		console.log(list_riders_names);
 
 		this.setState({
 			data: {
-				riders: list_riders_names
+				riders: list_riders
 			}
 		});
+		//
+		// var list_riders_names = [];
+		// for (var x in list_riders) {
+		// 	console.log(list_riders[x]);
+		// 	firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
+		// 		list_riders_names.push(snap.val().name);
+		// 	});
+		// }
+		//
+		// console.log(list_riders_names);
+
 
 		var timelineRef = firebase.database().ref('charters/' + params.charterId + '/timeline');
 
@@ -1269,7 +1304,7 @@ class DetailScreen extends React.Component {
                 console.log('setting state');
                 return { unseen: "does not display" }
             });
-        }, 2000);
+        }, 10000);
     }
 
 	render() {
@@ -1288,27 +1323,31 @@ class DetailScreen extends React.Component {
 
               <ListItem>
 				<Left><Text style={styles.bodyText}>{Destinations[this.state.destination]}</Text></Left>
-				<Left><Text note>{this.state.time}, {Pickups[this.state.pickup]}</Text></Left>
+				<Left><Text note>{this.getTime(this.state.time)}, {Pickups[this.state.pickup]}</Text></Left>
 			 </ListItem>
 
             <ListItem avatar>
-		       <Left><Thumbnail source={require('./one.jpg')} /></Left>
+		       <Left><Thumbnail source={IMAGES[this.state.ownerUid]} /></Left>
 		    	<Body>
 		    		<Text style={{fontWeight: 'bold', fontSize: 15}}>{this.state.ownerName}</Text>
 		    	</Body>
 		    </ListItem>
 
-			<Text style={styles.bodyText}>Current Riders:</Text>
+			<Separator bordered>
+				<Text style={styles.separatorText}>Current Riders:</Text>
+			</Separator>
 
 			</View>
 
 			<List dataArray={this.state.data.riders} renderRow={(rowData) =>
 				<ListItem avatar>
-					<Left><Thumbnail source={require('./two.jpg')} /></Left>
-					<Body><Text>{rowData}</Text></Body>
+					<Left><Thumbnail source={IMAGES[rowData.uid]} /></Left>
+					<Body><Text>{rowData.name}</Text></Body>
 				</ListItem>} />
 
-			<Text style={styles.bodyText}>Timeline:</Text>
+			<Separator bordered>
+				<Text style={styles.separatorText}>Timeline:</Text>
+			</Separator>
 
 			<Item regular>
 				<Input onChangeText={(text) => this.setState({newMessage: text})} placeholder='Leave a Comment...'/>
@@ -1324,9 +1363,9 @@ class DetailScreen extends React.Component {
 				</ListItem>} />
 
 			</Content>
-			<TouchableHighlight style={styles.button} onPress={this.join} underlayColor='#00FFCC'>
-					<Text style={styles.buttonText}>JOIN RIDE</Text>
-			</TouchableHighlight>
+				<TouchableHighlight style={styles.button} onPress={this.join} underlayColor='#00FFCC'>
+						<Text style={styles.buttonText}>JOIN RIDE</Text>
+				</TouchableHighlight>
 			</Container>
 
 
@@ -1538,16 +1577,20 @@ class CreateScreen extends React.Component {
 
 
 		return (
-			<View style={styles.container}>
-				<NewCharterForm
-					ref="form"
-					type={newCharter}
-					options={options}
-				/>
+			<Container backgroundColor='white'>
+			<Content style={{ marginTop: '7.5%' }} >
+				<View style={styles.container}>
+					<NewCharterForm
+						ref="form"
+						type={newCharter}
+						options={options}
+					/>
+				</View>
+			</Content>
 				<TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#00FFCC'>
 					<Text style={styles.buttonText}>SAVE</Text>
 				</TouchableHighlight>
-			</View>
+			</Container>
 		);
 	}
 }
@@ -1590,7 +1633,7 @@ const styles = StyleSheet.create({
 		backgroundColor: 'white',
 		height: 30,
 		width: 100,
-		borderColor: '#00FFCC',
+		borderColor: '#4887c7',
 		borderWidth: 2,
 		borderRadius: 8,
 		justifyContent: 'center',
@@ -1598,7 +1641,7 @@ const styles = StyleSheet.create({
 	sideButtonText: {
 		fontSize: 15,
 		fontFamily: "Roboto",
-		color: '#00FFCC',
+		color: '#4887c7',
 		alignSelf: 'center',
 		fontWeight: 'bold',
 		letterSpacing: 2,
@@ -1613,6 +1656,12 @@ const styles = StyleSheet.create({
   		fontSize: 20,
   		fontWeight: 'bold',
 		color: 'black',
+		fontFamily: 'Roboto'
+	},
+	separatorText: {
+  		fontSize: 20,
+  		fontWeight: 'bold',
+		color: '#4887c7',
 		fontFamily: 'Roboto'
 	}
 });
