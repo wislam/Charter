@@ -26,8 +26,9 @@ var {
 } = ReactNative;
 import { ActionSheet, Separator, Thumbnail, Grid, Col, Row, Container, Header, Content, Form, Item, Input, Label, Left, Right, Body, Icon, Title, InputGroup, List, ListItem, Button} from 'native-base';
 import { StackNavigator } from 'react-navigation';
-import Drawer from 'react-native-drawer'
 import * as firebase from 'firebase';
+
+console.disableYellowBox = true;
 
 // tcomb-form-native
 var t = require('tcomb-form-native');
@@ -456,7 +457,7 @@ class ProfileScreen extends React.Component {
 				</View>
 
 				<View style={{flex: 5}}>
-					
+
 					<Separator bordered>
                         <Text style = {styles.bodyText}>Charters Owned:</Text>
                     </Separator>
@@ -474,7 +475,7 @@ class ProfileScreen extends React.Component {
 					<Separator bordered>
                         <Text style = {styles.bodyText}>Charters Joined:</Text>
                     </Separator>
-					
+
 					<List dataArray={this.state.data.list_chartersJoined} renderRow={(item) =>
 						<ListItem button onPress={() => navigate('JoinDetail', { charterId: item.id })}>
 							<Body>
@@ -560,13 +561,13 @@ class SearchScreen extends React.Component {
 		}
 	}
 
-	
+
 
 	render() {
 
 		const { params } = this.props.navigation.state;
 		const { navigate } = this.props.navigation;
-		
+
 
 		var Destinations = t.enums({
 			'PEN': 'Penn Station NY',
@@ -599,8 +600,8 @@ class SearchScreen extends React.Component {
 		}; // optional rendering options (see documentation)
 
 		return (
-					
-			
+
+
 			<View style={styles.container}>
 
 
@@ -782,6 +783,12 @@ class OwnDetailScreen extends React.Component {
 	markCompleted() {
 		const { params } = this.props.navigation.state;
 		firebaseApp.database().ref('charters/' + params.charterId + '/active').set(false);
+		Alert.alert(
+			"Thanks for riding with Charter! Your fellow riders' deposits will be transferred to your account within 5-7 business days.",
+			null,
+			[
+				{text: 'OK', onPress: () => console.log('OK')},
+			])
 	}
 
 	// TODO Just time required here
@@ -921,34 +928,8 @@ class JoinDetailScreen extends React.Component {
 		//ownerUid = "";
 
 		this.componentWillMount = this.componentWillMount.bind(this);
-		this.join = this.join.bind(this);
 		this.leave = this.leave.bind(this);
 		this.leavelogic = this.leavelogic.bind(this);
-	}
-
-	join() {
-		const { params } = this.props.navigation.state;
-
-		console.log(firebase.auth().currentUser.uid);
-		console.log(this.state.ownerUid);
-
-		if (firebase.auth().currentUser.uid != this.state.ownerUid) {
-			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
-			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
-		}
-
-		else {
-			// TODO Make the component for Join conditional so that it only shows up when owner != currentUser
-			Alert.alert(
-				"You can't join your own trip!",
-				null,
-				[
-				  {text: 'OK', onPress: () => console.log('OK')},
-				]
-			 )
-		}
-
-
 	}
 
 	leavelogic() {
@@ -1097,12 +1078,57 @@ class DetailScreen extends React.Component {
 			data: {
 				riders: []
 			},
-			newMessage: ""
+			newMessage: "",
+			loading: false,
+			allowed: false,
+			complete: true,
+			status: null,
+			token: null,
 		};
 
+		this.handleApplePayPress = this.handleApplePayPress.bind(this);
 		this.componentWillMount = this.componentWillMount.bind(this);
 		this.join = this.join.bind(this);
 		this.postMessage = this.postMessage.bind(this);
+	}
+
+	handleApplePayPress = async () => {
+		try {
+			this.setState({
+				loading: true,
+				status: null,
+				token: null,
+			})
+			const token = await stripe.paymentRequestWithApplePay([{
+				label: 'Ride Deposit',
+				amount: '10.00',
+			}], {
+				// requiredBillingAddressFields: 'all',
+				// requiredShippingAddressFields: 'all',
+				shippingMethods: [{
+					id: 'Digital',
+					label: 'Online',
+					detail: 'FREE',
+					amount: '0.00',
+				}],
+			})
+
+			console.log('Result:', token)
+			this.setState({ loading: false, token })
+
+			if (this.state.complete) {
+				await stripe.completeApplePayRequest()
+				console.log('Apple Pay payment completed')
+				this.setState({ status: 'Apple Pay payment completed'})
+			} else {
+				await stripe.cancelApplePayRequest()
+				console.log('Apple Pay payment cenceled')
+				this.setState({ status: 'Apple Pay payment cenceled'})
+			}
+		} catch (error) {
+			console.log('Error:', error)
+			this.setState({ loading: false, status: `Error: ${error.message}` })
+		}
 	}
 
 	join() {
@@ -1115,13 +1141,15 @@ class DetailScreen extends React.Component {
 			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
 			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
 			var destination = this.state.destination;
-			Alert.alert(
-				"Congratulations! You're " + destination + " bound.",
-				null,
-				[
-					{text: 'OK', onPress: () => console.log('OK')},
-				]
-			);
+			// Alert.alert(
+			// 	"Congratulations! You're " + destination + " bound.",
+			// 	null,
+			// 	[
+			// 		{text: 'OK', onPress: () => console.log('OK')},
+			// 	]
+			// );
+
+			this.handleApplePayPress();
 			setTimeout(() => {
 	            this.setState(() => {
 	                console.log('setting state');
@@ -1142,8 +1170,11 @@ class DetailScreen extends React.Component {
 		}
 	}
 
-	componentWillMount() {
+	async componentWillMount() {
 		const { params } = this.props.navigation.state;
+
+		const allowed = await stripe.deviceSupportsApplePay();
+	    this.setState({ allowed });
 
 		var currentCharterRef = firebase.database().ref('charters/' + params.charterId);
 		currentCharterRef.on('value', (snapshot) => {
@@ -1361,10 +1392,6 @@ export default class CardFormScreen extends React.Component {
 	    }
 	  }
 
-	  handleSetupApplePayPress = () => (
-	    stripe.openApplePaySetup()
-	  )
-
 	  render() {
 	    const { loading, allowed, complete, status, token } = this.state
 
@@ -1377,12 +1404,7 @@ export default class CardFormScreen extends React.Component {
 	          Click button to show Apple Pay dialog.
 	        </Text>
 	        <Button
-	          text="Pay with Pay"
-	          disabledText="Not supported"
-	          loading={loading}
-	          disabled={!allowed}
 	          onPress={this.handleApplePayPress}
-
 	        />
 	        <Text style={styles.instruction}>
 	          Complete the operation on tokent
