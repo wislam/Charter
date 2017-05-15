@@ -120,7 +120,7 @@ class WelcomeScreen extends React.Component {
 	}
 
 	static navigationOptions = {
-		title: "CREATE A RIDE",
+		title: "WELCOME",
 		headerTintColor: 'white',
 		headerStyle: {
 			backgroundColor: '#00FFCC',
@@ -265,7 +265,7 @@ class CompleteScreen extends React.Component {
 	}
 
 	static navigationOptions = {
-		title: "CREATE A RIDE",
+		title: "COMPLETE SIGNUP",
 		headerTintColor: 'white',
 		headerStyle: {
 			backgroundColor: '#00FFCC',
@@ -328,7 +328,7 @@ class CompleteScreen extends React.Component {
 class ProfileScreen extends React.Component {
 	static navigationOptions = {
 
-		title: "CREATE A RIDE",
+		title: "PROFILE",
 		headerTintColor: 'white',
 		headerStyle: {
 			backgroundColor: '#00FFCC',
@@ -510,7 +510,7 @@ class SearchScreen extends React.Component {
 	}
 
 	static navigationOptions = {
-		title: "CREATE A RIDE",
+		title: "SEARCH",
 		headerTintColor: 'white',
 		headerLeft: null,
 		headerStyle: {
@@ -616,7 +616,7 @@ class SearchScreen extends React.Component {
 
 class ListScreen extends React.Component {
 	static navigationOptions = {
-		title: "CREATE A RIDE",
+		title: "AVAILABLE CHARTERS",
 		headerTintColor: 'white',
 		headerStyle: {
 			backgroundColor: '#00FFCC',
@@ -715,7 +715,7 @@ class ListScreen extends React.Component {
 class OwnDetailScreen extends React.Component {
 	static navigationOptions = {
 
-		title: "CREATE A RIDE",
+		title: "CHARTER DETAILS",
 		headerTintColor: 'white',
 		headerStyle: {
 			backgroundColor: '#00FFCC',
@@ -862,7 +862,7 @@ class OwnDetailScreen extends React.Component {
 class JoinDetailScreen extends React.Component {
 	static navigationOptions = {
 
-		title: "CREATE A RIDE",
+		title: "CHARTER DETAILS",
 		headerTintColor: 'white',
 		headerStyle: {
 			backgroundColor: '#00FFCC',
@@ -1012,7 +1012,7 @@ class JoinDetailScreen extends React.Component {
 class DetailScreen extends React.Component {
 	static navigationOptions = {
 
-		title: "CREATE A RIDE",
+		title: "CHARTER DETAILS",
 		headerTintColor: 'white',
 		headerStyle: {
 			backgroundColor: '#00FFCC',
@@ -1291,7 +1291,7 @@ class DetailScreen extends React.Component {
 class CreateScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: "CREATE A RIDE",
+		title: "CREATE A CHARTER",
 		headerTintColor: 'white',
 		headerStyle: {
 			backgroundColor: '#00FFCC',
