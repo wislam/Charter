@@ -1,7 +1,7 @@
 
 'use strict';
 import React from 'react';
-import stripe from 'tipsi-stripe'
+import stripe from 'tipsi-stripe';
 import {
 	AppRegistry,
 	Text,
@@ -33,14 +33,6 @@ console.disableYellowBox = true;
 // tcomb-form-native
 var t = require('tcomb-form-native');
 var NewCharterForm = t.form.Form;
-
-const IMAGES = {
-	Qu3kgJP47JQLMFgVkWn1io1U6i23: require('./assets/images/Qu3kgJP47JQLMFgVkWn1io1U6i23.jpg'),
-	Ztc6q88Tn3gfJQ0lxQCDgMQEbQw2: require('./assets/images/Ztc6q88Tn3gfJQ0lxQCDgMQEbQw2.jpg'),
-	cQtPjZu9ORMOjeCPTXgcKz9gHo73: require('./assets/images/cQtPjZu9ORMOjeCPTXgcKz9gHo73.jpg'),
-	mlYGv7qKCbe7N9pbUBrChiG66RD2: require('./assets/images/mlYGv7qKCbe7N9pbUBrChiG66RD2.jpg'),
-	retvID4uyRQ0RFfgUlf2YxMjPMD2: require('./assets/images/retvID4uyRQ0RFfgUlf2YxMjPMD2.jpg')
-}
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -123,26 +115,17 @@ class WelcomeScreen extends React.Component {
 
 		this.signup = this.signup.bind(this);
 		this.login = this.login.bind(this);
+		this.resetPass = this.resetPass.bind(this);
 		this.navigate = this
 	}
 
 	static navigationOptions = {
-		title: 'WELCOME',
-		header: {
-		    titleStyle: {
-		     	color: 'white',
-		     	letterSpacing: 5,
-		     	fontSize: 25,
-				fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor:'white',
-			left: null,
-
-		  }
+		title: "CREATE A RIDE",
+		headerTintColor: 'white',
+		headerStyle: {
+			backgroundColor: '#00FFCC',
+		},
+		headerLeft: null
 	};
 
 	async signup() {
@@ -161,12 +144,11 @@ class WelcomeScreen extends React.Component {
 			navigate('Complete', { });
 
 			} catch (error) {
-				// TODO WAQA link this to functionality
 				Alert.alert(
             		error.toString(),
             		null,
             		[
-		              {text: 'Forgot Password?', onPress: () => console.log('Forgot Password?')},
+		              {text: 'Forgot Password?', onPress: {this.resetPass}},
 		              {text: 'Login', onPress: () => console.log('Login')},
 		              {text: 'Signup', onPress: () => console.log('Signup')},
 		            ]
@@ -175,6 +157,29 @@ class WelcomeScreen extends React.Component {
 		}
 
 
+	}
+
+	resetPass() {
+		firebase.auth().sendPasswordResetEmail(this.state.email).then(function() {
+		  Alert.alert(
+				'You have been sent an email with password reset instructions.',
+				null,
+				[
+					{text: 'OK', onPress: () => console.log('OK')},
+				]
+			);
+		}, function(error) {
+			Alert.alert(
+				error.toString(),
+				null,
+				[
+				  {text: 'Forgot Password?', onPress: {this.resetPass}},
+				  {text: 'Login', onPress: () => console.log('Login')},
+				  {text: 'Signup', onPress: () => console.log('Signup')},
+				]
+			 )
+			console.log(error.toString())
+		});
 	}
 
 	async login() {
@@ -190,12 +195,11 @@ class WelcomeScreen extends React.Component {
 			navigate('Search', { });
 
 		} catch (error) {
-			// TODO WAQA link this to functionality
 			Alert.alert(
 				error.toString(),
 				null,
 				[
-				  {text: 'Forgot Password?', onPress: () => console.log('Forgot Password?')},
+				  {text: 'Forgot Password?', onPress: {this.resetPass}},
 				  {text: 'Login', onPress: () => console.log('Login')},
 				  {text: 'Signup', onPress: () => console.log('Signup')},
 				]
@@ -217,7 +221,7 @@ class WelcomeScreen extends React.Component {
 		});
 		return (
 			<View style={styles.container}>
-				<Text style={{color:"#00FFCC", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"oregon"}}>CHARTER</Text>
+				<Text style={{color:"#00FFCC", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800'}}>CHARTER</Text>
 				<Content style={{ width: '80%', marginLeft: '9%'}}>
 					<Form>
 						<Item floatingLabel>
@@ -254,7 +258,6 @@ class CompleteScreen extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// TODO WAQA photos
 			displayName: ""
 		};
 
@@ -262,20 +265,10 @@ class CompleteScreen extends React.Component {
 	}
 
 	static navigationOptions = {
-		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `SIGN UP`,
-		header: {
-		     titleStyle: {
-		     	color: 'white',
-		     	letterSpacing: 5,
-		     	fontSize: 25,
-				fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor: 'white',
+		title: "CREATE A RIDE",
+		headerTintColor: 'white',
+		headerStyle: {
+			backgroundColor: '#00FFCC',
 		}
 	};
 
@@ -294,15 +287,25 @@ class CompleteScreen extends React.Component {
 		}, function(error) {
 			console.log("ERROR")
 		});
+
+		user.sendEmailVerification().then(function() {
+			Alert.alert(
+				"Please check your inbox to verify your email address.",
+				null,
+				[
+					{text: 'OK', onPress: () => console.log('OK')},
+				])
+		}, function(error) {
+		  console.log("ERROR")
+		});
 	}
 
 	render() {
-		// const { navigate } = this.props.navigation;
 		const { params } = this.props.navigation.state;
 
 		return (
 			<View style={styles.container}>
-				<Text style={{color:"white", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800', fontFamily:"oregon"}}>CHARTER</Text>
+				<Text style={{color:"white", fontSize:65, textAlign:"center", letterSpacing:2.5, fontWeight:'800'}}>CHARTER</Text>
 				<Content style={{ width: '80%', marginLeft: '9%'}}>
 					<Form>
 						<Item floatingLabel>
@@ -324,20 +327,11 @@ class CompleteScreen extends React.Component {
 
 class ProfileScreen extends React.Component {
 	static navigationOptions = {
-		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => 'PROFILE',
-		header: {
-		     titleStyle: {
-		     	color: 'white',
-		     	letterSpacing: 5,
-		     	fontSize: 25,
-				fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor: 'white',
+
+		title: "CREATE A RIDE",
+		headerTintColor: 'white',
+		headerStyle: {
+			backgroundColor: '#00FFCC',
 		}
 
 	};
@@ -457,7 +451,7 @@ class ProfileScreen extends React.Component {
 			}}>
 				<View style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20}}>
 					<View>
-					<Thumbnail source={IMAGES[this.state.uid]} />
+					<Thumbnail source={require('./profile.png')} />
 					</View>
 					<View style={{paddingTop: 2}}>
 						<Text style={styles.welcome}>{this.state.name}</Text>
@@ -516,22 +510,12 @@ class SearchScreen extends React.Component {
 	}
 
 	static navigationOptions = {
-		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => 'SEARCH',
-		header: {
-		     titleStyle: {
-		     	color: 'white',
-		     	letterSpacing: 5,
-		     	fontSize: 25,
-				fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor: 'white',
-			left: null,
-		  },
+		title: "CREATE A RIDE",
+		headerTintColor: 'white',
+		headerLeft: null,
+		headerStyle: {
+			backgroundColor: '#00FFCC',
+		}
 	};
 
 	getRef() {
@@ -569,13 +553,10 @@ class SearchScreen extends React.Component {
 		}
 	}
 
-
-
 	render() {
 
 		const { params } = this.props.navigation.state;
 		const { navigate } = this.props.navigation;
-
 
 		var Destinations = t.enums({
 			'PEN': 'Penn Station NY',
@@ -604,15 +585,12 @@ class SearchScreen extends React.Component {
 					}
 				}
 			},
-
 		}; // optional rendering options (see documentation)
 
 		return (
-
 			<Container backgroundColor='white'>
 			<Content style={{ marginTop: '7.5%' }} >
 			<View style={styles.container}>
-
 
 				<NewCharterForm
 					ref="form"
@@ -638,21 +616,10 @@ class SearchScreen extends React.Component {
 
 class ListScreen extends React.Component {
 	static navigationOptions = {
-		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `AVAILABLE CHARTERS`,
-		header: {
-		     titleStyle: {
-		     	color: 'white',
-		     	letterSpacing: 2,
-		     	fontSize: 21,
-				fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor: 'white',
-
+		title: "CREATE A RIDE",
+		headerTintColor: 'white',
+		headerStyle: {
+			backgroundColor: '#00FFCC',
 		}
 	};
 
@@ -682,13 +649,6 @@ class ListScreen extends React.Component {
 					&& (qstart.getMonth() == t.getMonth()) && (qstart.getYear() == t.getYear()))
 					charters.push(child.val());
 			});
-			//
-			// if (charters.length == 0) {
-			// 	Alert.alert('We could not find any charters for you. Maybe you should create one!', null, [
-			// 		{text: 'Create New Charter', onPress: () => navigate('Create', {})},
-			// 		{text: 'Start Over', onPress: () => navigate('Search', {})}
-			// 	]);
-			// }
 
 			this.setState({
 				data: {
@@ -724,7 +684,7 @@ class ListScreen extends React.Component {
 			renderRow={(rowData) =>
 				<ListItem avatar button onPress={() => navigate('Detail', { charterId: rowData.id })}>
 					<Left>
-						<Thumbnail source={IMAGES[rowData.owner]} />
+						<Thumbnail source={require('./profile.png')} />
 					</Left>
 					<Body>
 						<Text style={{fontSize:18}}>{rowData.owner_name}</Text>
@@ -754,20 +714,11 @@ class ListScreen extends React.Component {
 
 class OwnDetailScreen extends React.Component {
 	static navigationOptions = {
-		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `RIDE DETAILS`,
-		header: {
-		    titleStyle: {
-		     	color: 'white',
-		     	letterSpacing: 5,
-		     	fontSize: 25,
-				fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor: 'white',
+
+		title: "CREATE A RIDE",
+		headerTintColor: 'white',
+		headerStyle: {
+			backgroundColor: '#00FFCC',
 		}
 	};
 
@@ -780,9 +731,9 @@ class OwnDetailScreen extends React.Component {
 			time: "",
 			timeline: [],
 			ownerName: "",
-			riders: new ListView.DataSource({
-				rowHasChanged: (row1, row2) => row1 !== row2,
-			})
+			data: {
+				riders: [],
+			}
 		};
 		//ownerUid = "";
 
@@ -794,7 +745,7 @@ class OwnDetailScreen extends React.Component {
 		const { params } = this.props.navigation.state;
 		firebaseApp.database().ref('charters/' + params.charterId + '/active').set(false);
 		Alert.alert(
-			"Thanks for riding with Charter! Your fellow riders' deposits will be transferred to your account within 5-7 business days.",
+			"Thanks for riding with Charter! Please enter your Your fellow riders' deposits will be transferred to your account within 5-7 business days.",
 			null,
 			[
 				{text: 'OK', onPress: () => console.log('OK')},
@@ -855,6 +806,8 @@ class OwnDetailScreen extends React.Component {
 	}
 
 	render() {
+		var image = require('./nyc.jpg');
+		if (this.state.destination == 'PHL') image = require('./phl.jpg');
 		// The screen's current route is passed in to `props.navigation.state`:
 		const { params } = this.props.navigation.state;
 		const { navigate } = this.props.navigation;
@@ -865,7 +818,7 @@ class OwnDetailScreen extends React.Component {
 
 			<View>
 			<Image  style={{width: 420, height: 220, flex: 1, justifyContent: 'center', alignItems: 'center'}}
-              	source={require('./nyc.jpg')}
+              	source={image}
               />
 
               <ListItem>
@@ -874,7 +827,7 @@ class OwnDetailScreen extends React.Component {
 			 </ListItem>
 
             <ListItem avatar>
-		       <Left><Thumbnail source={IMAGES[this.state.ownerUid]} /></Left>
+		       <Left><Thumbnail source={require('./profile.png')} /></Left>
 		    	<Body>
 		    		<Text style={{fontWeight: 'bold', fontSize: 15}}>{this.state.ownerName}</Text>
 		    	</Body>
@@ -886,9 +839,9 @@ class OwnDetailScreen extends React.Component {
 
 			</View>
 
-			<ListView dataSource={this.state.riders} renderRow={(rowData) =>
+			<List dataArray={this.state.data.riders} renderRow={(rowData) =>
 				<ListItem avatar>
-					<Left><Thumbnail source={IMAGES[rowData.uid]} /></Left>
+					<Left><Thumbnail source={require('./profile.png')} /></Left>
 					<Body><Text>{rowData}</Text></Body>
 				</ListItem>} />
 
@@ -908,20 +861,11 @@ class OwnDetailScreen extends React.Component {
 
 class JoinDetailScreen extends React.Component {
 	static navigationOptions = {
-		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `RIDE DETAILS`,
-		header: {
-		    titleStyle: {
-		     	color: 'white',
-		     	letterSpacing: 5,
-		     	fontSize: 25,
-				fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor: 'white',
+
+		title: "CREATE A RIDE",
+		headerTintColor: 'white',
+		headerStyle: {
+			backgroundColor: '#00FFCC',
 		}
 	};
 
@@ -963,7 +907,6 @@ class JoinDetailScreen extends React.Component {
 				{text: 'Yes', onPress: this.leavelogic},
 				{text: 'No', onPress: () => console.log('NO')}
 			])
-
 	}
 
 	componentWillMount() {
@@ -1019,6 +962,8 @@ class JoinDetailScreen extends React.Component {
 	}
 
 	render() {
+		var image = require('./nyc.jpg');
+		if (this.state.destination == 'PHL') image = require('./phl.jpg');
 		// The screen's current route is passed in to `props.navigation.state`:
 		const { params } = this.props.navigation.state;
 		const { navigate } = this.props.navigation;
@@ -1029,7 +974,7 @@ class JoinDetailScreen extends React.Component {
 
 			<View>
 			<Image  style={{width: 420, height: 220, flex: 1, justifyContent: 'center', alignItems: 'center'}}
-              	source={require('./nyc.jpg')}
+              	source={image}
               />
 
               <ListItem>
@@ -1038,7 +983,7 @@ class JoinDetailScreen extends React.Component {
 			 </ListItem>
 
             <ListItem avatar>
-		       <Left><Thumbnail source={IMAGES[this.state.ownerUid]} /></Left>
+		       <Left><Thumbnail source={require('./profile.png')} /></Left>
 		    	<Body>
 		    		<Text style={{fontWeight: 'bold', fontSize: 15}}>{this.state.ownerName}</Text>
 		    	</Body>
@@ -1048,9 +993,9 @@ class JoinDetailScreen extends React.Component {
 
 			</View>
 
-			<ListView dataSource={this.state.riders} renderRow={(rowData) =>
+			<List dataArray={this.state.data.riders} renderRow={(rowData) =>
 				<ListItem avatar>
-					<Left><Thumbnail source={IMAGES[rowData.uid]} /></Left>
+					<Left><Thumbnail source={require('./profile.png')} /></Left>
 					<Body><Text>{rowData.name}</Text></Body>
 				</ListItem>} />
 
@@ -1066,20 +1011,11 @@ class JoinDetailScreen extends React.Component {
 
 class DetailScreen extends React.Component {
 	static navigationOptions = {
-		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => `RIDE DETAILS`,
-		header: {
-		     titleStyle: {
-		     	color: 'white',
-		     	letterSpacing: 5,
-		     	fontSize: 25,
-				fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor: 'white',
+
+		title: "CREATE A RIDE",
+		headerTintColor: 'white',
+		headerStyle: {
+			backgroundColor: '#00FFCC',
 		}
 	};
 
@@ -1166,13 +1102,6 @@ class DetailScreen extends React.Component {
 			firebaseApp.database().ref('charters/' + params.charterId + '/riders/' + firebase.auth().currentUser.uid).set(true);
 			firebaseApp.database().ref('users/' + firebase.auth().currentUser.uid + '/charters-joined/' + params.charterId).set(true);
 			var destination = this.state.destination;
-			// Alert.alert(
-			// 	"Congratulations! You're " + destination + " bound.",
-			// 	null,
-			// 	[
-			// 		{text: 'OK', onPress: () => console.log('OK')},
-			// 	]
-			// );
 
 			this.handleApplePayPress();
 			setTimeout(() => {
@@ -1242,16 +1171,6 @@ class DetailScreen extends React.Component {
 				riders: list_riders
 			}
 		});
-		//
-		// var list_riders_names = [];
-		// for (var x in list_riders) {
-		// 	console.log(list_riders[x]);
-		// 	firebase.database().ref('users/' + list_riders[x]).on('value', (snap) => {
-		// 		list_riders_names.push(snap.val().name);
-		// 	});
-		// }
-		//
-		// console.log(list_riders_names);
 
 
 		var timelineRef = firebase.database().ref('charters/' + params.charterId + '/timeline');
@@ -1285,13 +1204,6 @@ class DetailScreen extends React.Component {
 
 		var timelineRef = firebase.database().ref('charters/' + params.charterId + '/timeline');
 
-		// var newMessage = "";
-		// AlertIOS.prompt(
-		// 	'Post an update:',
-		// 	null,
-		// 	text => newMessage = text
-		// );
-
 		timelineRef.push({
 			sender_name: firebase.auth().currentUser.displayName,
 			text: this.state.newMessage
@@ -1308,6 +1220,8 @@ class DetailScreen extends React.Component {
     }
 
 	render() {
+		var image = require('./nyc.jpg');
+		if (this.state.destination == 'PHL') image = require('./phl.jpg');
 		// The screen's current route is passed in to `props.navigation.state`:
 		const { params } = this.props.navigation.state;
 		const { navigate } = this.props.navigation;
@@ -1318,7 +1232,7 @@ class DetailScreen extends React.Component {
 
 			<View>
 			<Image  style={{width: 420, height: 220, flex: 1, justifyContent: 'center', alignItems: 'center'}}
-              	source={require('./nyc.jpg')}
+              	source={image}
               />
 
               <ListItem>
@@ -1327,7 +1241,7 @@ class DetailScreen extends React.Component {
 			 </ListItem>
 
             <ListItem avatar>
-		       <Left><Thumbnail source={IMAGES[this.state.ownerUid]} /></Left>
+		       <Left><Thumbnail source={require('./profile.png')} /></Left>
 		    	<Body>
 		    		<Text style={{fontWeight: 'bold', fontSize: 15}}>{this.state.ownerName}</Text>
 		    	</Body>
@@ -1341,7 +1255,7 @@ class DetailScreen extends React.Component {
 
 			<List dataArray={this.state.data.riders} renderRow={(rowData) =>
 				<ListItem avatar>
-					<Left><Thumbnail source={IMAGES[rowData.uid]} /></Left>
+					<Left><Thumbnail source={require('./profile.png')} /></Left>
 					<Body><Text>{rowData.name}</Text></Body>
 				</ListItem>} />
 
@@ -1374,135 +1288,13 @@ class DetailScreen extends React.Component {
 	}
 }
 
-export default class CardFormScreen extends React.Component {
-	  state = {
-	    loading: false,
-	    allowed: false,
-	    complete: true,
-	    status: null,
-	    token: null,
-	  }
-
-	  async componentWillMount() {
-	    const allowed = await stripe.deviceSupportsApplePay()
-	    this.setState({ allowed })
-	  }
-
-	  handleCompleteChange = (complete) => (
-	    this.setState({ complete })
-	  )
-
-	  handleApplePayPress = async () => {
-	    try {
-	      this.setState({
-	        loading: true,
-	        status: null,
-	        token: null,
-	      })
-	      const token = await stripe.paymentRequestWithApplePay([{
-	        label: 'Ride Deposit',
-	        amount: '10.00',
-	      }], {
-	        // requiredBillingAddressFields: 'all',
-	        // requiredShippingAddressFields: 'all',
-	        shippingMethods: [{
-	          id: 'Digital',
-	          label: 'Online',
-	          detail: 'FREE',
-	          amount: '0.00',
-	        }],
-	      })
-
-	      console.log('Result:', token)
-	      this.setState({ loading: false, token })
-
-	      if (this.state.complete) {
-	        await stripe.completeApplePayRequest()
-	        console.log('Apple Pay payment completed')
-	        this.setState({ status: 'Apple Pay payment completed'})
-	      } else {
-	        await stripe.cancelApplePayRequest()
-	        console.log('Apple Pay payment cenceled')
-	        this.setState({ status: 'Apple Pay payment cenceled'})
-	      }
-	    } catch (error) {
-	      console.log('Error:', error)
-	      this.setState({ loading: false, status: `Error: ${error.message}` })
-	    }
-	  }
-
-	  render() {
-	    const { loading, allowed, complete, status, token } = this.state
-
-	    return (
-	      <View style={styles.container}>
-	        <Text style={styles.header}>
-	          Apple Pay Example
-	        </Text>
-	        <Text style={styles.instruction}>
-	          Click button to show Apple Pay dialog.
-	        </Text>
-	        <Button
-	          onPress={this.handleApplePayPress}
-	        />
-	        <Text style={styles.instruction}>
-	          Complete the operation on tokent
-	        </Text>
-	        <Switch
-	          style={styles.switch}
-	          value={complete}
-	          onValueChange={this.handleCompleteChange}
-
-	        />
-	        <View>
-	          {token &&
-	            <Text
-	              style={styles.instruction}
-	              >
-	              Token: {token.tokenId}
-	            </Text>
-	          }
-	          {status &&
-	            <Text
-	              style={styles.instruction}
-	            >
-	              {status}
-	            </Text>
-	          }
-	        </View>
-	        <View style={styles.hintContainer}>
-	          <Button
-	            text="Setup Pay"
-	            disabledText="Not supported"
-	            disabled={!allowed}
-	            onPress={this.handleSetupApplePayPress}
-
-	          />
-	          <Text style={styles.hint}>
-	            ('Setup Pay' works only on real device)
-	          </Text>
-	        </View>
-	      </View>
-	    )
-	  }
-	}
-
 class CreateScreen extends React.Component {
 	static navigationOptions = {
 		// Nav options can be defined as a function of the navigation prop:
-		title: ({ state }) => "CREATE A RIDE",
-		header: {
-		     titleStyle: {
-		     	color: 'white',
-		     	letterSpacing: 5,
-		     	fontSize: 25,
-				fontFamily: "oregon",
-		     	fontWeight: '500'
-		    },
-		    style: {
-		     	backgroundColor: '#00FFCC'
-		    },
-		    tintColor: 'white',
+		title: "CREATE A RIDE",
+		headerTintColor: 'white',
+		headerStyle: {
+			backgroundColor: '#00FFCC',
 		}
 	};
 
@@ -1605,14 +1397,12 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontSize: 40,
-		fontFamily: "oregon",
 		color: 'black',
 		alignSelf: 'center',
 		marginBottom: 30
 	},
 	buttonText: {
 		fontSize: 15,
-		fontFamily: "Roboto",
 		color: 'white',
 		alignSelf: 'center',
 		fontWeight: 'bold',
@@ -1640,7 +1430,6 @@ const styles = StyleSheet.create({
 	},
 	sideButtonText: {
 		fontSize: 15,
-		fontFamily: "Roboto",
 		color: '#4887c7',
 		alignSelf: 'center',
 		fontWeight: 'bold',
@@ -1656,13 +1445,11 @@ const styles = StyleSheet.create({
   		fontSize: 20,
   		fontWeight: 'bold',
 		color: 'black',
-		fontFamily: 'Roboto'
 	},
 	separatorText: {
   		fontSize: 20,
   		fontWeight: 'bold',
 		color: '#4887c7',
-		fontFamily: 'Roboto'
 	}
 });
 
